@@ -1,4 +1,5 @@
 // environment.prod.ts
+import { apiRoutes } from '../apiRoutes'
 
 function getApiBaseUrl(): string {
 	// Si estamos en Electron
@@ -22,4 +23,5 @@ function getApiBaseUrl(): string {
 
 export const environment = {
 	baseUrl: getApiBaseUrl(),
+	apiRoutes,
 }

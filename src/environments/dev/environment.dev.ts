@@ -1,3 +1,5 @@
+import { apiRoutes } from '../apiRoutes'
+
 // Función para obtener la URL base del API
 function getApiBaseUrl(): string {
 	// Si estamos en Electron, usar la variable global establecida
@@ -21,4 +23,5 @@ function getApiBaseUrl(): string {
 
 export const environment = {
 	baseUrl: getApiBaseUrl(),
+	apiRoutes,
 }
