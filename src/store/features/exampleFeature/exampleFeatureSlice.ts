@@ -1,11 +1,5 @@
+import type { ExampleState } from '@/models/store/ExampleState'
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
-
-// Example State
-interface ExampleState {
-	data: string[]
-	loading: boolean
-	error: string | null
-}
 
 const initialState: ExampleState = {
 	data: [],
