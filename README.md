@@ -9,7 +9,7 @@ A production-ready React TypeScript template with a comprehensive project struct
 - [Project Structure](#project-structure)
 - [State Management](#state-management)
 - [Utilities](#utilities)
-- [Getting Started](#getting-started)
+- [Getting Started](#getting-started) 👈🏻 Probably what you're looking for!
 - [Available Scripts](#available-scripts)
 - [Design Patterns](#design-patterns)
 - [Roadmap](#roadmap)
@@ -203,23 +203,143 @@ Flexible configuration system supporting multiple deployment scenarios:
 
 ### 2. Configuration
 
-#### Package.json
+This section covers all the essential changes you need to make to adapt this starter template for your specific project. Follow these steps carefully to ensure your project is properly configured.
 
-- Update `name`, `version`, and `description`
-- Review dependencies and add/remove as needed
-- Customize build scripts if required
+#### Package.json Configuration
+
+**Location:** `package.json` (root directory)
+
+**Required Changes:**
+
+- **Project Name** - Change `"name": "react-ts-starter"` to your project's name (use kebab-case: `my-awesome-project`)
+- **Version** - Update `"version": "0.0.0"` to your initial version (typically `"1.0.0"` for new projects)
+- **Description** - Replace the placeholder description with a concise explanation of your project's purpose
+- **Author** - Add your name and email: `"author": "Your Name <your.email@example.com>"`
+
+**Optional but Recommended:**
+
+- **Keywords** - Add relevant keywords for better discoverability: `"keywords": ["react", "typescript", "your-domain"]`
+- **License** - Confirm the license matches your needs or change it
+- **Dependencies Review** - Examine pre-installed packages and remove any you won't use, add any missing ones your project requires
+- **Scripts Customization** - Modify build scripts if you need custom deployment processes
 
 #### Environment Setup
 
-- Configure API endpoints in `src/environments/apiRoutes.ts`
-- Update base URLs in environment files for your backend
-- Add environment variables as needed
+**API Configuration:**
 
-#### README Customization
+**Location:** `src/environments/apiRoutes.ts`
 
-- Replace placeholder content with your project details
-- Update repository URLs and project name
-- Add project-specific documentation
+This file centralizes all your API endpoints. Update it with your actual backend routes:
+
+```typescript
+// Replace example endpoints with your actual API routes
+export const API_ROUTES = {
+	// Authentication
+	LOGIN: '/auth/login',
+	REGISTER: '/auth/register',
+	// Your specific endpoints here
+	USERS: '/api/users',
+	PRODUCTS: '/api/products',
+	// Add all your API endpoints
+}
+```
+
+**Environment Files:**
+
+**Location:** `src/environments/`
+
+- **Development** (`development.ts`) - Update `API_BASE_URL` to your local/development backend URL
+- **Production** (`production.ts`) - Set your production backend URL
+- **Add Environment Variables** - Define any additional configuration your app needs:
+
+```typescript
+export const environment = {
+	production: false,
+	API_BASE_URL: 'http://localhost:3001/api', // Your backend URL
+	APP_NAME: 'Your App Name',
+	// Add your specific environment variables
+	ANALYTICS_ID: 'your-analytics-id',
+	FEATURE_FLAGS: {
+		enableBetaFeatures: false,
+	},
+}
+```
+
+#### README.md Customization
+
+**Location:** `EXAMPLE_README.md` (root directory)
+
+**Critical Changes Required:**
+
+1. **Project Title** - Replace `"YOUR PROJECT TITLE"` with your actual project name
+2. **Description** - Update the main description to explain what your application does
+3. **Repository URLs** - Change all instances of:
+   - `YOUR_REPOSITORY_URL` → your actual repository URL
+   - `YOUR_REPOSITORY_NAME` → your actual repository name
+   - `PROJECT` → your actual project name
+
+**Sections to Customize:**
+
+- **Tech Stack** - Update with your specific technology choices beyond the base template
+- **TL;DR** - Add a brief summary of what your application does
+- **Prerequisites** - Add your specific backend API URL or requirements
+- **Project Structure** - Explain your specific folder organization
+- **Key Features** - Highlight your application's main functionality
+- **API Integration** - Document your backend integration and authentication methods
+- **Acknowledgments** - Add your specific dependencies and data sources
+
+#### License Configuration
+
+**Location:** `LICENSE.md`
+
+**Required Updates:**
+
+- **License Type** - The template uses GPL-3.0. Change to your preferred license (MIT, Apache 2.0, etc.)
+- **Copyright Holder** - Replace placeholder text with your name or organization
+- **Year** - Update to current year
+- **Project Name** - Add your project name to the license text
+
+**Common License Options:**
+
+- **MIT** - Most permissive, good for open source projects
+- **GPL-3.0** - Copyleft license, requires derivative works to be open source
+- **Apache 2.0** - Permissive with patent protection
+- **Custom/Proprietary** - For commercial projects
+
+#### Configuration Files (Modify Only If Needed)
+
+These files are pre-configured and ready to use, but you may need to adjust them based on your specific requirements:
+
+**Code Quality & Formatting:**
+
+- `.eslintrc` - ESLint rules (add project-specific linting rules)
+- `.prettierrc` - Code formatting preferences
+- `tsconfig.json` - TypeScript compiler options
+
+**Build & Development:**
+
+- `vite.config.ts` - Build configuration (modify for custom build requirements)
+- `.env.example` - Template for environment variables (add your variables here)
+
+**Deployment:**
+
+- `.gitignore` - Files to exclude from version control (add project-specific exclusions)
+- `.dockerignore` - Files to exclude from Docker builds
+- `Dockerfile` - Container configuration (if using Docker deployment)
+
+#### Minimum Required Changes Checklist
+
+Before starting development, ensure you've completed these essential changes:
+
+- [ ] Updated `package.json` name, version, and description
+- [ ] Changed all repository URLs to your project
+- [ ] Updated `README.md` title and main description
+- [ ] Configured API base URLs in environment files
+- [ ] Updated license with your information
+- [ ] Removed or added dependencies based on your needs
+- [ ] Replaced placeholder content in README with project-specific information
+
+**Pro Tip:** Search the entire codebase for "react-ts-starter", "David-H-Afonso", and "YOUR\_" to find any remaining placeholder text that needs updating.
 
 ### 3. Development
 
@@ -227,17 +347,6 @@ Start the development server and begin building your application:
 
 ```bash
 npm run dev
-```
-
-## Available Scripts
-
-```bash
-npm run dev          # Start development server
-npm run build        # Build for production
-npm run preview      # Preview production build
-npm run lint         # Run ESLint
-npm run lint:fix     # Fix ESLint errors
-npm run type-check   # TypeScript type checking
 ```
 
 ## Design Patterns
@@ -306,8 +415,8 @@ This starter template implements several proven design patterns to ensure mainta
 
 ## License
 
-This project is licensed under the GPL-3.0 License - see the [LICENSE.md](LICENSE.md) file for details.
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
 
 ---
 
-**Ready to build something amazing?** This starter template provides everything you need to create scalable, maintainable React applications. Focus on your business logic while we handle the foundation.
+**Built with ❤️ by David Hormiga Afonso. Ready to build something amazing?** This starter template provides everything you need to create scalable and maintainable React applications. Focus on your business logic while we handle the foundation.
