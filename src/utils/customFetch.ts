@@ -104,27 +104,16 @@ const createTimeoutPromise = (timeoutMs: number): Promise<never> => {
  * @template T - Expected response data type
  * @param endpoint - URL endpoint (absolute or relative)
  * @param requestOptions - Configuration options for the request
+ * Request options:
+ * - method: HTTP method for the request (default: 'GET')
+ * - headers: Request headers as key-value pairs (default: {})
+ * - body: Request body data (default: undefined)
+ * - params: URL query parameters to append to the endpoint (default: undefined)
+ * - signal: AbortSignal for request cancellation (default: undefined)
+ * - timeout: Request timeout in milliseconds (default: undefined)
+ * - baseURL: Custom base URL to prepend to relative URLs (default: '')
+ *
  * @returns Promise resolving to typed response data
- *
- * @example
- * ```typescript
- * // GET request with query parameters
- * const users = await customFetch<User[]>('/api/users', {
- *   params: { page: 1, limit: 10 }
- * })
- *
- * // POST request with JSON body
- * const newUser = await customFetch<User>('/api/users', {
- *   method: 'POST',
- *   body: { name: 'John', email: 'john@example.com' }
- * })
- *
- * // Request with custom headers and timeout
- * const data = await customFetch<ApiResponse>('/api/data', {
- *   headers: { 'Authorization': 'Bearer token' },
- *   timeout: 5000
- * })
- * ```
  */
 export const customFetch = async <T = any>(
 	endpoint: string,
