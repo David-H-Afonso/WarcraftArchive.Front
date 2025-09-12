@@ -5,11 +5,8 @@
 export const apiRoutes = {
 	/** Example API endpoints */
 	example: {
-		/** Pokemon metadata endpoint */
 		url: '/url/example',
-		/** Add more example endpoints here */
-		// users: '/api/users',
-		// posts: '/api/posts',
+		/** Add more endpoints here */
 	},
 
 	/** Authentication endpoints */
