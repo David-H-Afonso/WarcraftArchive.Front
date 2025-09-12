@@ -1,5 +1,5 @@
 import React from 'react'
-import { EmptyLayout, AppLayout } from '../layouts'
+import { EmptyLayout, AppLayout } from '@/layouts'
 
 interface LayoutProviderProps {
 	children: React.ReactNode
