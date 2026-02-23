@@ -1,3 +1,195 @@
 @forward 'variables';
 
 @use 'variables' as *;
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	background: var(--color-bg);
+	color: var(--color-text);
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+	font-size: 14px;
+	line-height: 1.5;
+}
+
+// ─── Buttons ──────────────────────────────────────────────────────────────────
+
+.btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.35rem;
+	padding: 0.45rem 0.9rem;
+	border-radius: var(--radius-sm);
+	border: 1px solid transparent;
+	cursor: pointer;
+	font-size: 0.85rem;
+	font-weight: 500;
+	transition:
+		background 0.15s,
+		opacity 0.15s;
+
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+}
+
+.btn-primary {
+	background: var(--color-primary);
+	color: #fff;
+	border-color: var(--color-primary);
+
+	&:hover:not(:disabled) {
+		background: var(--color-primary-hover);
+	}
+}
+
+.btn-secondary {
+	background: var(--color-surface-hover);
+	color: var(--color-text);
+	border-color: var(--color-border);
+
+	&:hover:not(:disabled) {
+		background: #2a2e46;
+	}
+}
+
+.btn-outline {
+	background: transparent;
+	color: var(--color-text);
+	border-color: var(--color-border);
+
+	&:hover:not(:disabled) {
+		background: var(--color-surface-hover);
+	}
+}
+
+.btn-danger {
+	background: var(--color-danger);
+	color: #fff;
+	border-color: var(--color-danger);
+
+	&:hover:not(:disabled) {
+		filter: brightness(0.9);
+	}
+}
+
+.btn-warning {
+	background: var(--color-warning);
+	color: #fff;
+	border-color: var(--color-warning);
+
+	&:hover:not(:disabled) {
+		filter: brightness(0.9);
+	}
+}
+
+.btn-xs {
+	padding: 0.2rem 0.5rem;
+	font-size: 0.75rem;
+}
+
+.btn-sm {
+	padding: 0.3rem 0.65rem;
+	font-size: 0.8rem;
+}
+
+// ─── Form elements ────────────────────────────────────────────────────────────
+
+input[type='text'],
+input[type='email'],
+input[type='password'],
+input[type='number'],
+select,
+textarea {
+	background: var(--color-surface);
+	color: var(--color-text);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-sm);
+	padding: 0.4rem 0.65rem;
+	font-size: 0.875rem;
+	min-width: 0;
+
+	&:focus {
+		outline: none;
+		border-color: var(--color-primary);
+	}
+
+	&::placeholder {
+		color: var(--color-text-muted);
+	}
+
+	&:disabled {
+		opacity: 0.5;
+	}
+}
+
+.form-group {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+
+	label {
+		font-size: 0.8rem;
+		color: var(--color-text-muted);
+		font-weight: 500;
+	}
+}
+
+// ─── App Layout ───────────────────────────────────────────────────────────────
+
+.app-layout {
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+}
+
+.app-layout__content {
+	flex: 1;
+}
+
+.app-header {
+	position: sticky;
+	top: 0;
+	z-index: 100;
+	background: var(--color-surface);
+	border-bottom: 1px solid var(--color-border);
+	padding: 0 1.5rem;
+	height: 52px;
+	display: flex;
+	align-items: center;
+}
+
+.header-content {
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.header-logo {
+	font-weight: 700;
+	font-size: 1rem;
+}
+
+.header-user {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+}
+
+.header-username {
+	font-size: 0.875rem;
+	color: var(--color-text-muted);
+}
+
+.header-admin-badge {
+	color: var(--color-warning);
+	font-size: 0.75rem;
+}

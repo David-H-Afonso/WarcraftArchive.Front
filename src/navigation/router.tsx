@@ -1,27 +1,34 @@
-import { createBrowserRouter } from 'react-router-dom'
-import Home from '@/components/Home/containers/Home'
+import { createHashRouter, Navigate } from 'react-router-dom'
+import { ProtectedRoute, PublicRoute } from '@/components/Auth'
+import { AppLayout } from '@/layouts'
+import { Login } from '@/components/Auth'
+import { Playground } from '@/components/Playground'
 
-// TODO: DO THIS BETTER AND WITH CUSTOM ROUTES IN SEPARATE FILES
-
-export const router = createBrowserRouter([
+export const router = createHashRouter([
+	{
+		path: '/login',
+		element: (
+			<PublicRoute>
+				<Login />
+			</PublicRoute>
+		),
+	},
+	{
+		path: '/playground',
+		element: (
+			<ProtectedRoute>
+				<AppLayout>
+					<Playground />
+				</AppLayout>
+			</ProtectedRoute>
+		),
+	},
 	{
 		path: '/',
-		element: <Home />,
-		errorElement: <Home />,
-		children: [
-			{
-				index: true,
-				element: <Home />,
-			},
-			{
-				path: 'settings',
-				element: <Home />,
-			},
-		],
+		element: <Navigate to='/playground' replace />,
 	},
 	{
 		path: '*',
-		element: <div>Page not found</div>,
-		errorElement: <Home />,
+		element: <Navigate to='/playground' replace />,
 	},
 ])

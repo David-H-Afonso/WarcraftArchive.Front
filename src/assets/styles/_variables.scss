@@ -1,2 +1,18 @@
-$color-white: #ffffff;
-$color-black: #000000;
+// ─── Color palette ───────────────────────────────────────────────────────────
+:root {
+	--color-bg: #0f1117;
+	--color-surface: #1a1d27;
+	--color-surface-hover: #22263a;
+	--color-border: #2e3350;
+	--color-text: #e4e6f0;
+	--color-text-muted: #8890b5;
+	--color-primary: #7c8cff;
+	--color-primary-hover: #6070f0;
+	--color-danger: #ff5c6c;
+	--color-warning: #e8a44a;
+	--color-code-bg: #131620;
+
+	--radius-sm: 4px;
+	--radius-md: 6px;
+	--radius-lg: 8px;
+}

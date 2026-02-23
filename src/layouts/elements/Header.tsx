@@ -1,29 +1,34 @@
 import React from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { useAppDispatch, useAppSelector } from '@/store/hooks/hooks'
+import { selectCurrentUser, selectIsAdmin } from '@/store/features/auth'
+import { logoutUser } from '@/store/features/auth'
 
 export const Header: React.FC = () => {
-	const location = useLocation()
+	const dispatch = useAppDispatch()
+	const user = useAppSelector(selectCurrentUser)
+	const isAdmin = useAppSelector(selectIsAdmin)
+
+	const handleLogout = () => {
+		dispatch(logoutUser())
+	}
 
 	return (
 		<header className='app-header'>
 			<div className='header-content'>
-				<Link to='/' className='header-logo'>
-					Logo
-				</Link>
+				<span className='header-logo'>⚔️ WarcraftArchive</span>
 
-				<nav className='header-nav'>
-					<Link to='/' className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}>
-						Home
-					</Link>
-					<Link
-						to='/settings'
-						className={`nav-link ${location.pathname === '/settings' ? 'active' : ''}`}>
-						Settings
-					</Link>
-				</nav>
-
-				<div className='quick-actions'>
-					<button className='action-btn'>Action</button>
+				<div className='header-user'>
+					{user && (
+						<>
+							<span className='header-username'>
+								{user.userName}
+								{isAdmin && <span className='header-admin-badge'> (admin)</span>}
+							</span>
+							<button className='btn btn-sm btn-outline' onClick={handleLogout}>
+								Logout
+							</button>
+						</>
+					)}
 				</div>
 			</div>
 		</header>

@@ -1,33 +1,33 @@
 /**
- * API endpoints configuration
- * Centralized location for all API routes used across the application
+ * API endpoints configuration \u2014 WarcraftArchive
  */
 export const apiRoutes = {
-	/** Example API endpoints */
-	example: {
-		url: '/url/example',
-		/** Add more endpoints here */
-	},
-
-	/** Authentication endpoints */
+	health: '/health',
 	auth: {
-		// login: '/auth/login',
-		// logout: '/auth/logout',
-		// refresh: '/auth/refresh',
+		login: '/auth/login',
+		refresh: '/auth/refresh',
+		logout: '/auth/logout',
+		logoutAll: '/auth/logout-all',
+		me: '/auth/me',
 	},
-
-	/** User management endpoints */
-	users: {
-		// list: '/api/users',
-		// profile: '/api/users/profile',
-		// update: '/api/users/update',
+	admin: {
+		createUser: '/admin/users',
 	},
+	characters: {
+		base: '/characters',
+		byId: (id: string) => `/characters/${id}`,
+	},
+	contents: {
+		base: '/contents',
+		byId: (id: string) => `/contents/${id}`,
+	},
+	trackings: {
+		base: '/trackings',
+		byId: (id: string) => `/trackings/${id}`,
+	},
+	dashboard: {
+		weekly: '/dashboard/weekly',
+	},
+}
 
-	/** Add more API route groups as needed */
-} as const
-
-/**
- * Type for API routes structure
- * Provides type safety when accessing routes
- */
 export type ApiRoutes = typeof apiRoutes

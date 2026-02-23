@@ -1,29 +1,22 @@
-import { configureStore } from '@reduxjs/toolkit'
+import { configureStore, combineReducers } from '@reduxjs/toolkit'
 import { persistStore, persistReducer } from 'redux-persist'
-import { combineReducers } from '@reduxjs/toolkit'
 import storage from 'redux-persist/lib/storage'
 import { exampleFeatureReducer } from './features/exampleFeature'
+import { authReducer } from './features/auth'
 
-/**
- * CENTRALIZED PERSISTENCE CONFIGURATION
- *
- * This store template uses centralized persistence managed at the root level.
- * It is minimal and can be expanded as needed for any project.
- */
-
-// Root persist config - Centralized persistence for the entire store
+// Root persist config
 const persistConfig = {
 	key: 'root',
 	storage,
-	whitelist: ['exampleFeature'], // Add reducers here to persist
+	whitelist: ['auth'], // persist auth state (tokens, user)
 }
 
-// Combine reducers - Add your reducers here
+// Combine reducers
 const rootReducer = combineReducers({
 	exampleFeature: exampleFeatureReducer,
+	auth: authReducer,
 })
 
-// Create persisted reducer - Single point of persistence configuration
 const persistedReducer = persistReducer(persistConfig, rootReducer)
 
 export const store = configureStore({

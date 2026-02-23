@@ -2,11 +2,14 @@
 import { apiRoutes } from '../apiRoutes'
 
 function getApiBaseUrl(): string {
-	// Si estamos en Electron
-	if (typeof window !== 'undefined' && (window as any).API_BASE_URL) {
-		return (window as any).API_BASE_URL
+	// Runtime config (Docker / CasaOS nginx)
+	if (typeof window !== 'undefined' && (window as any).ENV?.VITE_API_BASE_URL) {
+		return (window as any).ENV.VITE_API_BASE_URL
 	}
-
+	// Build-time env var
+	if (import.meta.env.VITE_API_BASE_URL) {
+		return import.meta.env.VITE_API_BASE_URL
+	}
 	// Si tenemos configuración en runtime (Docker)
 	if (typeof window !== 'undefined' && (window as any).ENV && (window as any).ENV.VITE_API_URL) {
 		return (window as any).ENV.VITE_API_URL
