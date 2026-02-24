@@ -1,1 +1,32 @@
 @use '@/assets/styles' as *;
+
+.header-nav {
+	display: flex;
+	align-items: stretch;
+	gap: 0;
+	height: 100%;
+
+	&__tab {
+		display: flex;
+		align-items: center;
+		padding: 0 1rem;
+		border-bottom: 2px solid transparent;
+		font-size: 0.875rem;
+		font-weight: 500;
+		color: var(--color-text-muted);
+		text-decoration: none;
+		transition:
+			color 0.15s,
+			border-color 0.15s;
+		white-space: nowrap;
+
+		&:hover {
+			color: var(--color-text);
+		}
+
+		&--active {
+			color: var(--color-text);
+			border-bottom-color: var(--color-primary);
+		}
+	}
+}

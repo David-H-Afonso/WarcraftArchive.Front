@@ -17,6 +17,11 @@ body {
 	line-height: 1.5;
 }
 
+a {
+	color: inherit;
+	text-decoration: none;
+}
+
 // ─── Buttons ──────────────────────────────────────────────────────────────────
 
 .btn {
@@ -161,21 +166,32 @@ textarea {
 	background: var(--color-surface);
 	border-bottom: 1px solid var(--color-border);
 	padding: 0 1.5rem;
-	height: 52px;
+	height: 56px;
 	display: flex;
-	align-items: center;
+	align-items: stretch;
 }
 
 .header-content {
 	width: 100%;
+	display: grid;
+	grid-template-columns: auto 1fr auto;
+	align-items: stretch;
+	gap: 1.5rem;
+}
+
+.header-nav {
 	display: flex;
-	align-items: center;
-	justify-content: space-between;
+	justify-content: center;
 }
 
 .header-logo {
 	font-weight: 700;
 	font-size: 1rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	color: var(--color-text);
+	letter-spacing: -0.01em;
 }
 
 .header-user {
@@ -185,11 +201,20 @@ textarea {
 }
 
 .header-username {
-	font-size: 0.875rem;
+	font-size: 0.8rem;
 	color: var(--color-text-muted);
 }
 
 .header-admin-badge {
+	display: inline-block;
+	margin-left: 0.35rem;
+	padding: 0.1rem 0.35rem;
+	border-radius: 3px;
+	background: rgba(234, 179, 8, 0.15);
 	color: var(--color-warning);
-	font-size: 0.75rem;
+	font-size: 0.7rem;
+	font-weight: 600;
+	letter-spacing: 0.03em;
+	text-transform: uppercase;
+	vertical-align: middle;
 }

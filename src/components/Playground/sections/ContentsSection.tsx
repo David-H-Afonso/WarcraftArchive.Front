@@ -1,12 +1,7 @@
 import React, { useState } from 'react'
 import { contentService } from '@/services'
 import type { Content } from '@/models/api/Content'
-import {
-	DIFFICULTY_FLAGS,
-	MOTIVE_FLAGS,
-	bitmaskToLabels,
-	labelsToBitmask,
-} from '@/utils/enumHelpers'
+import { DIFFICULTY_FLAGS, bitmaskToLabels } from '@/utils/enumHelpers'
 
 const FlagCheckboxes: React.FC<{
 	flags: Array<{ label: string; value: number }>
@@ -45,7 +40,7 @@ export const ContentsSection: React.FC = () => {
 	const [cExpansion, setCExpansion] = useState('')
 	const [cComment, setCComment] = useState('')
 	const [cDiff, setCDiff] = useState(0)
-	const [cMotives, setCMotives] = useState(0)
+	const [cMotives, setCMotives] = useState<string[]>([])
 
 	// Edit
 	const [editId, setEditId] = useState('')
@@ -53,7 +48,7 @@ export const ContentsSection: React.FC = () => {
 	const [editExpansion, setEditExpansion] = useState('')
 	const [editComment, setEditComment] = useState('')
 	const [editDiff, setEditDiff] = useState(0)
-	const [editMotives, setEditMotives] = useState(0)
+	const [editMotives, setEditMotives] = useState<string[]>([])
 
 	const run = async (key: string, fn: () => Promise<unknown>) => {
 		setLoading(key)
@@ -87,13 +82,13 @@ export const ContentsSection: React.FC = () => {
 				expansion: cExpansion,
 				comment: cComment || null,
 				allowedDifficulties: cDiff,
-				motives: cMotives,
+				motiveIds: cMotives,
 			})
 			setCName('')
 			setCExpansion('')
 			setCComment('')
 			setCDiff(0)
-			setCMotives(0)
+			setCMotives([])
 			return c
 		})
 	}
@@ -106,7 +101,7 @@ export const ContentsSection: React.FC = () => {
 				expansion: editExpansion,
 				comment: editComment || null,
 				allowedDifficulties: editDiff,
-				motives: editMotives,
+				motiveIds: editMotives,
 			})
 			setEditId('')
 			return c
@@ -156,7 +151,7 @@ export const ContentsSection: React.FC = () => {
 									<td>{c.name}</td>
 									<td>{c.expansion}</td>
 									<td>{bitmaskToLabels(c.allowedDifficulties, DIFFICULTY_FLAGS).join(', ')}</td>
-									<td>{bitmaskToLabels(c.motives, MOTIVE_FLAGS).join(', ')}</td>
+									<td>{c.motives.map((m) => m.name).join(', ')}</td>
 									<td>
 										<button
 											className='btn btn-xs btn-outline'
@@ -166,7 +161,7 @@ export const ContentsSection: React.FC = () => {
 												setEditExpansion(c.expansion)
 												setEditComment(c.comment ?? '')
 												setEditDiff(c.allowedDifficulties)
-												setEditMotives(c.motives)
+												setEditMotives(c.motives.map((m) => m.id))
 											}}>
 											Edit
 										</button>{' '}
@@ -208,7 +203,7 @@ export const ContentsSection: React.FC = () => {
 						</div>
 						<div className='form-group'>
 							<label>Motives</label>
-							<FlagCheckboxes flags={MOTIVE_FLAGS} value={cMotives} onChange={setCMotives} />
+							{/* Motives: use new Content tab */}
 						</div>
 					</div>
 					<button type='submit' className='btn btn-primary' disabled={!!loading}>
@@ -244,14 +239,6 @@ export const ContentsSection: React.FC = () => {
 								<label>Allowed Difficulties</label>
 								<FlagCheckboxes flags={DIFFICULTY_FLAGS} value={editDiff} onChange={setEditDiff} />
 							</div>
-							<div className='form-group'>
-								<label>Motives</label>
-								<FlagCheckboxes
-									flags={MOTIVE_FLAGS}
-									value={editMotives}
-									onChange={setEditMotives}
-								/>
-							</div>
 						</div>
 						<div className='btn-row'>
 							<button type='submit' className='btn btn-primary' disabled={!!loading}>
@@ -276,4 +263,3 @@ export const ContentsSection: React.FC = () => {
 }
 
 // Suppress unused import warning
-void labelsToBitmask

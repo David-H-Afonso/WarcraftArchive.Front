@@ -1,6 +1,7 @@
 // ─── Content API types ─────────────────────────────────────────────────────────
 // AllowedDifficulties bitmask: LFR=1, Normal=2, Heroic=4, Mythic=8
-// Motives bitmask: Mounts=1, Transmog=2, Reputation=4, Anima=8, Achievement=16
+
+import type { UserMotive } from './UserMotive'
 
 export interface Content {
 	id: string
@@ -8,7 +9,7 @@ export interface Content {
 	expansion: string
 	comment: string | null
 	allowedDifficulties: number
-	motives: number
+	motives: UserMotive[]
 	createdAt: string
 	updatedAt: string
 }
@@ -18,7 +19,7 @@ export interface CreateContentRequest {
 	expansion: string
 	comment?: string | null
 	allowedDifficulties: number
-	motives: number
+	motiveIds: string[]
 }
 
 export interface UpdateContentRequest {
@@ -26,5 +27,5 @@ export interface UpdateContentRequest {
 	expansion: string
 	comment?: string | null
 	allowedDifficulties: number
-	motives: number
+	motiveIds: string[]
 }

@@ -1,1 +1,8 @@
 export { Button } from './Button/Button'
+export { SearchableSelect } from './SearchableSelect/SearchableSelect'
+export type { SelectOption } from './SearchableSelect/SearchableSelect'
+export { MultiSelect } from './MultiSelect/MultiSelect'
+export type { MultiSelectOption } from './MultiSelect/MultiSelect'
+export { Modal } from './Modal/Modal'
+export { TagBadge } from './TagBadge/TagBadge'
+export { ConfirmDialog } from './ConfirmDialog/ConfirmDialog'

@@ -1,0 +1,42 @@
+.multi-select {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.4rem;
+
+	&--disabled {
+		opacity: 0.5;
+		pointer-events: none;
+	}
+
+	&__chip {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+		padding: 0.25rem 0.65rem;
+		border-radius: 999px;
+		border: 1px solid var(--color-border);
+		background: var(--color-surface);
+		color: var(--color-text-muted);
+		font-size: 0.8rem;
+		cursor: pointer;
+		transition: all 0.15s;
+
+		&:hover {
+			border-color: var(--color-primary);
+			color: var(--color-text);
+		}
+
+		&--active {
+			color: #fff;
+			font-weight: 500;
+		}
+	}
+
+	&__color-dot {
+		display: inline-block;
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+		flex-shrink: 0;
+	}
+}

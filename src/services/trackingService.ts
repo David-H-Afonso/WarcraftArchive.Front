@@ -15,7 +15,8 @@ export const trackingService = {
 			if (filters.status !== undefined) params['status'] = filters.status
 			if (filters.frequency !== undefined) params['frequency'] = filters.frequency
 			if (filters.expansion !== undefined) params['expansion'] = filters.expansion
-			if (filters.motive !== undefined) params['motive'] = filters.motive
+			if (filters.motiveId !== undefined) params['motiveId'] = filters.motiveId
+			if (filters.contentId !== undefined) params['contentId'] = filters.contentId
 		}
 		return customFetch<Tracking[]>(apiRoutes.trackings.base, { params })
 	},

@@ -7,8 +7,10 @@ import type {
 } from '../models/api/Character'
 
 export const characterService = {
-	async getAll(): Promise<Character[]> {
-		return customFetch<Character[]>(apiRoutes.characters.base)
+	async getAll(params?: { ownerUserId?: string }): Promise<Character[]> {
+		return customFetch<Character[]>(apiRoutes.characters.base, {
+			params: params as Record<string, string>,
+		})
 	},
 
 	async getById(id: string): Promise<Character> {

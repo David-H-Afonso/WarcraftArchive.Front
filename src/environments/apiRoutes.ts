@@ -1,5 +1,5 @@
 /**
- * API endpoints configuration \u2014 WarcraftArchive
+ * API endpoints configuration — WarcraftArchive
  */
 export const apiRoutes = {
 	health: '/health',
@@ -12,6 +12,7 @@ export const apiRoutes = {
 	},
 	admin: {
 		createUser: '/admin/users',
+		getUsers: '/admin/users',
 	},
 	characters: {
 		base: '/characters',
@@ -24,6 +25,14 @@ export const apiRoutes = {
 	trackings: {
 		base: '/trackings',
 		byId: (id: string) => `/trackings/${id}`,
+	},
+	warbands: {
+		base: '/warbands',
+		byId: (id: string) => `/warbands/${id}`,
+	},
+	motives: {
+		base: '/motives',
+		byId: (id: string) => `/motives/${id}`,
 	},
 	dashboard: {
 		weekly: '/dashboard/weekly',

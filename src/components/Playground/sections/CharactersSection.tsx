@@ -50,7 +50,7 @@ export const CharactersSection: React.FC = () => {
 				class: cClass,
 				level: cLevel ? parseInt(cLevel) : null,
 				covenant: cCovenant || null,
-				warband: cWarband || null,
+				warbandId: null,
 			})
 			setCName('')
 			setCClass('')

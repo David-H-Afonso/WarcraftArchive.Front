@@ -1,0 +1,174 @@
+.content-page {
+	padding: 1.5rem;
+	max-width: 1400px;
+	margin: 0 auto;
+
+	&__header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 1.25rem;
+		gap: 1rem;
+		flex-wrap: wrap;
+	}
+
+	&__title {
+		margin: 0;
+		font-size: 1.25rem;
+		font-weight: 700;
+	}
+
+	&__toolbar {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+	}
+
+	&__empty {
+		color: var(--color-text-muted);
+		font-size: 0.9rem;
+		padding: 2rem 0;
+		text-align: center;
+	}
+}
+
+.content-table-wrapper {
+	overflow: hidden;
+	overflow-x: auto;
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-lg);
+}
+
+.content-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 0.875rem;
+	background: var(--color-surface);
+
+	th {
+		padding: 0.5rem 1rem;
+		text-align: left;
+		font-size: 0.75rem;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		color: var(--color-text-muted);
+		font-weight: 600;
+		border-bottom: 1px solid var(--color-border);
+		white-space: nowrap;
+	}
+
+	td {
+		padding: 0.6rem 1rem;
+		border-bottom: 1px solid var(--color-border);
+		vertical-align: middle;
+	}
+
+	tr:last-child td {
+		border-bottom: none;
+	}
+}
+
+.content-row {
+	&:hover td {
+		background: var(--color-surface-hover);
+	}
+
+	&__name {
+		font-weight: 500;
+		white-space: nowrap;
+	}
+
+	&__expansion,
+	&__diffs,
+	&__motives {
+		white-space: nowrap;
+	}
+
+	&__diffs,
+	&__motives {
+		display: flex;
+		gap: 0.3rem;
+		flex-wrap: wrap;
+		align-items: center;
+	}
+
+	&__comment-text {
+		color: var(--color-text-muted);
+		max-width: 180px;
+		display: inline-block;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		vertical-align: middle;
+	}
+
+	&__actions {
+		text-align: right;
+		width: 1%;
+		white-space: nowrap;
+	}
+
+	&__action-btns {
+		display: flex;
+		gap: 0.35rem;
+		opacity: 0;
+		transition: opacity 0.15s;
+		justify-content: flex-end;
+	}
+
+	&:hover &__action-btns {
+		opacity: 1;
+	}
+}
+
+.content-form {
+	display: flex;
+	flex-direction: column;
+	gap: 0.85rem;
+
+	&__diffs {
+		display: flex;
+		gap: 0.4rem;
+		flex-wrap: wrap;
+	}
+
+	&__diff-chip {
+		padding: 0.25rem 0.75rem;
+		border-radius: 999px;
+		border: 1px solid var(--color-border);
+		background: var(--color-surface);
+		color: var(--color-text-muted);
+		font-size: 0.8rem;
+		cursor: pointer;
+		transition: all 0.15s;
+
+		&:hover {
+			border-color: var(--color-primary);
+			color: var(--color-text);
+		}
+
+		&--active {
+			color: #fff !important;
+			font-weight: 500;
+		}
+	}
+
+	textarea {
+		resize: vertical;
+		min-height: 56px;
+		width: 100%;
+	}
+
+	&__actions {
+		display: flex;
+		gap: 0.75rem;
+		justify-content: flex-end;
+		margin-top: 0.5rem;
+	}
+
+	&__error {
+		color: var(--color-danger);
+		font-size: 0.85rem;
+		margin: 0;
+	}
+}

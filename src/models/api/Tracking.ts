@@ -7,6 +7,8 @@ export interface Tracking {
 	id: string
 	characterId: string
 	characterName: string
+	characterClass: string
+	characterRace: string | null
 	contentId: string
 	contentName: string
 	expansion: string
@@ -42,5 +44,6 @@ export interface TrackingFilters {
 	status?: number
 	frequency?: number
 	expansion?: string
-	motive?: number
+	motiveId?: string
+	contentId?: string
 }

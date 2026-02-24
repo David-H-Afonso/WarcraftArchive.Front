@@ -11,7 +11,7 @@ export const PublicRoute: React.FC<PublicRouteProps> = ({ children }) => {
 	const isAuthenticated = useAppSelector(selectIsAuthenticated)
 
 	if (isAuthenticated) {
-		return <Navigate to='/playground' replace />
+		return <Navigate to='/' replace />
 	}
 
 	return <>{children}</>

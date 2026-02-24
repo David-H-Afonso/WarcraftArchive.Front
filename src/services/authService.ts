@@ -57,4 +57,8 @@ export const authService = {
 			body: req,
 		})
 	},
+
+	async getUsers(): Promise<UserDto[]> {
+		return customFetch<UserDto[]>(apiRoutes.admin.getUsers)
+	},
 }

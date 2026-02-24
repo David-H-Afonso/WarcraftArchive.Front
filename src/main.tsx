@@ -8,13 +8,15 @@ import { initiateAuth } from './store/features/auth'
 import { router } from '@/navigation/router'
 import '@/assets/styles/index.scss'
 
-// Validate persisted session on startup
-store.dispatch(initiateAuth())
-
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
 		<Provider store={store}>
-			<PersistGate loading={<div>Loading…</div>} persistor={persistor}>
+			<PersistGate
+				loading={null}
+				persistor={persistor}
+				onBeforeLift={async () => {
+					await store.dispatch(initiateAuth())
+				}}>
 				<RouterProvider router={router} />
 			</PersistGate>
 		</Provider>
