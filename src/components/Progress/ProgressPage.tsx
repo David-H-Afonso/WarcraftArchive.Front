@@ -537,10 +537,10 @@ export const ProgressPage: React.FC = () => {
 				characterService.getAll(),
 				userMotiveService.getAll(),
 			])
-			setTrackings(t)
-			setContents(c)
-			setCharacters(ch)
-			setMotives(m)
+			setTrackings(Array.isArray(t) ? t : [])
+			setContents(Array.isArray(c) ? c : [])
+			setCharacters(Array.isArray(ch) ? ch : [])
+			setMotives(Array.isArray(m) ? m : [])
 		} catch (e) {
 			console.error(e)
 		} finally {
