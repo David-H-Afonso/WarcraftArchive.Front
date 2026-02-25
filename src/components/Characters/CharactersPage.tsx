@@ -16,7 +16,9 @@ import {
 	WOW_RACES,
 	WOW_RACE_COLORS,
 	WOW_COVENANTS,
+	WOW_COVENANT_COLORS,
 } from '@/utils/wowConstants'
+import type { WowCovenant } from '@/utils/wowConstants'
 import type { SelectOption } from '@/components/elements/SearchableSelect/SearchableSelect'
 import './CharactersPage.scss'
 
@@ -82,6 +84,7 @@ const CharacterForm: React.FC<CharacterFormProps> = ({
 	const covenantOptions: SelectOption[] = WOW_COVENANTS.map((c) => ({
 		value: c,
 		label: c,
+		color: WOW_COVENANT_COLORS[c],
 	}))
 
 	const warbandOptions: SelectOption[] = warbands.map((w) => ({
@@ -221,7 +224,13 @@ const CharacterCard: React.FC<CharacterCardProps> = ({ character, onEdit, onDele
 				<div className='char-card__tags'>
 					{character.class && <TagBadge label={character.class} color={classColor} size='sm' />}
 					{character.race && <TagBadge label={character.race} color={raceColor} size='sm' />}
-					{character.covenant && <TagBadge label={character.covenant} color='#a855f7' size='sm' />}
+					{character.covenant && (
+						<TagBadge
+							label={character.covenant}
+							color={WOW_COVENANT_COLORS[character.covenant as WowCovenant] ?? '#a855f7'}
+							size='sm'
+						/>
+					)}
 					{character.warbandName && (
 						<TagBadge
 							label={character.warbandName}

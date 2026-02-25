@@ -140,6 +140,13 @@ export const WOW_COVENANTS = ['Kyrian', 'Necrolords', 'Night Fae', 'Venthyr'] as
 
 export type WowCovenant = (typeof WOW_COVENANTS)[number]
 
+export const WOW_COVENANT_COLORS: Record<WowCovenant, string> = {
+	'Kyrian': '#40C0F0',
+	'Necrolords': '#408870',
+	'Night Fae': '#3068E8',
+	'Venthyr': '#E02030',
+}
+
 // ─── Difficulty ───────────────────────────────────────────────────────────────
 // Unified bitmask values matching DifficultyFlags on the backend.
 // Used both for Content.allowedDifficulties bitmask AND single Tracking.difficulty.

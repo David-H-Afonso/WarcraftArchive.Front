@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { authService, warbandService, userMotiveService, dataService } from '@/services'
 import { useAppDispatch, useAppSelector } from '@/store/hooks/hooks'
-import { patchCurrentUser, selectCurrentUser } from '@/store/features/auth'
+import { patchCurrentUser, selectCurrentUser, selectIsAdmin } from '@/store/features/auth'
 import {
 	setSimulatedReset,
 	selectSimDailyReset,
@@ -824,18 +824,19 @@ const ResetSection: React.FC = () => {
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 export const AdminPage: React.FC = () => {
+	const isAdmin = useAppSelector(selectIsAdmin)
 	return (
 		<div className='admin-page'>
 			<div className='admin-page__header'>
-				<h1 className='admin-page__title'>Admin</h1>
+				<h1 className='admin-page__title'>Settings</h1>
 			</div>
 			<div className='admin-page__body'>
-				<UsersSection />
+				{isAdmin && <UsersSection />}
 				<WarbandsSection />
 				<MotivesSection />
 				<StatusLabelsSection />
 				<ImportExportSection />
-				<ResetSection />
+				{isAdmin && <ResetSection />}
 			</div>
 		</div>
 	)

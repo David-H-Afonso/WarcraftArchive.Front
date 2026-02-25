@@ -63,15 +63,13 @@ export const Header: React.FC = () => {
 						}>
 						Content
 					</NavLink>
-					{isAdmin && (
-						<NavLink
-							to='/admin'
-							className={({ isActive }) =>
-								`header-nav__tab ${isActive ? 'header-nav__tab--active' : ''}`
-							}>
-							Admin
-						</NavLink>
-					)}
+					<NavLink
+						to='/admin'
+						className={({ isActive }) =>
+							`header-nav__tab ${isActive ? 'header-nav__tab--active' : ''}`
+						}>
+						Settings
+					</NavLink>
 				</nav>
 
 				<ResetCountdown />
