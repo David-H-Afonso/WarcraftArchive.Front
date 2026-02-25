@@ -3,18 +3,22 @@ import { persistStore, persistReducer } from 'redux-persist'
 import storage from 'redux-persist/lib/storage'
 import { exampleFeatureReducer } from './features/exampleFeature'
 import { authReducer } from './features/auth'
+import { simResetReducer } from './features/simReset'
+import { statusLabelsReducer } from './features/statusLabels'
 
 // Root persist config
 const persistConfig = {
 	key: 'root',
 	storage,
-	whitelist: ['auth'], // persist auth state (tokens, user)
+	whitelist: ['auth', 'statusLabels'], // simReset is intentionally NOT persisted
 }
 
 // Combine reducers
 const rootReducer = combineReducers({
 	exampleFeature: exampleFeatureReducer,
 	auth: authReducer,
+	simReset: simResetReducer,
+	statusLabels: statusLabelsReducer,
 })
 
 const persistedReducer = persistReducer(persistConfig, rootReducer)

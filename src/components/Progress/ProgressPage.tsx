@@ -1,5 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { trackingService, contentService, characterService, userMotiveService } from '@/services'
+import { useAppSelector } from '@/store/hooks/hooks'
+import { selectRefetchToken } from '@/store/features/simReset'
+import type { RootState } from '@/store'
 import type { Tracking, CreateTrackingRequest, UpdateTrackingRequest } from '@/models/api/Tracking'
 import type { Content } from '@/models/api/Content'
 import type { Character } from '@/models/api/Character'
@@ -14,7 +17,7 @@ import {
 	TRACKING_FREQUENCIES,
 	getDifficultyLabel,
 	getDifficultyColor,
-	getStatusColor,
+	getExpansionColor,
 	parseDifficultyBitmask,
 	WOW_CLASS_COLORS,
 } from '@/utils/wowConstants'
@@ -40,7 +43,7 @@ const AddTrackingModal: React.FC<AddTrackingModalProps> = ({
 	const [form, setForm] = useState<CreateTrackingRequest>({
 		characterId: '',
 		contentId: '',
-		difficulty: 1,
+		difficulty: 2,
 		frequency: 2,
 		status: 0,
 	})
@@ -81,9 +84,10 @@ const AddTrackingModal: React.FC<AddTrackingModalProps> = ({
 		label: f.label,
 	}))
 
+	const statusLabelMap = useAppSelector((s: RootState) => s.statusLabels.labels)
 	const statusOptions: SelectOption[] = TRACKING_STATUSES.map((s) => ({
 		value: String(s.value),
-		label: s.label,
+		label: statusLabelMap[s.value] ?? s.label,
 		color: s.color,
 	}))
 
@@ -119,10 +123,10 @@ const AddTrackingModal: React.FC<AddTrackingModalProps> = ({
 						options={contentOptions}
 						value={form.contentId || null}
 						onChange={(v) => {
-							const newContent = contents.find((c) => c.id === v) ?? null
+						const newContent = contents.find((c) => c.id === v) ?? null
 							const firstDiff = newContent
-								? (parseDifficultyBitmask(newContent.allowedDifficulties)[0] ?? 1)
-								: 1
+								? (parseDifficultyBitmask(newContent.allowedDifficulties)[0] ?? 2)
+								: 2
 							setForm({ ...form, contentId: v ?? '', difficulty: firstDiff })
 						}}
 						placeholder='Select content...'
@@ -198,7 +202,7 @@ const EditTrackingModal: React.FC<EditTrackingModalProps> = ({
 	onClose,
 }) => {
 	const [form, setForm] = useState<UpdateTrackingRequest>({
-		difficulty: 1,
+		difficulty: 2,
 		frequency: 2,
 		status: 0,
 		comment: null,
@@ -222,16 +226,17 @@ const EditTrackingModal: React.FC<EditTrackingModalProps> = ({
 	const content = contents.find((c) => c.id === tracking?.contentId) ?? null
 	const availableDiffs = content
 		? parseDifficultyBitmask(content.allowedDifficulties)
-		: [0, 1, 2, 3]
+		: [1, 2, 4, 8]
 
 	const diffOptions = availableDiffs.map((v) => {
 		const d = DIFFICULTIES.find((x) => x.value === v)!
 		return { value: String(v), label: d.label, color: d.color }
 	})
 
+	const statusLabelMap = useAppSelector((s: RootState) => s.statusLabels.labels)
 	const statusOptions: SelectOption[] = TRACKING_STATUSES.map((s) => ({
 		value: String(s.value),
-		label: s.label,
+		label: statusLabelMap[s.value] ?? s.label,
 		color: s.color,
 	}))
 
@@ -301,20 +306,11 @@ const EditTrackingModal: React.FC<EditTrackingModalProps> = ({
 					</div>
 					<div className='form-group'>
 						<label>Last Completed</label>
-						<input
-							type='date'
-							value={
-								form.lastCompletedAt
-									? new Date(form.lastCompletedAt).toISOString().split('T')[0]
-									: ''
-							}
-							onChange={(e) =>
-								setForm({
-									...form,
-									lastCompletedAt: e.target.value ? new Date(e.target.value).toISOString() : null,
-								})
-							}
-						/>
+						<div className='tracking-form__readonly'>
+							{form.lastCompletedAt
+								? new Date(form.lastCompletedAt).toLocaleDateString()
+								: <span className='tracking-form__never'>Not recorded yet</span>}
+						</div>
 					</div>
 					{error && <p className='tracking-form__error'>{error}</p>}
 					<div className='tracking-form__actions'>
@@ -342,17 +338,22 @@ interface TrackingRowProps {
 const TrackingRow: React.FC<TrackingRowProps> = ({ tracking, onUpdate, onEdit, onDelete }) => {
 	const [saving, setSaving] = useState(false)
 	const classColor = WOW_CLASS_COLORS[tracking.characterClass] ?? '#7c8cff'
-	const statusColor = getStatusColor(tracking.status)
 
 	const handleStatusChange = async (val: string | null) => {
 		if (val === null) return
+		const newStatus = Number(val)
+		const changes: Partial<UpdateTrackingRequest> = {
+			status: newStatus,
+			difficulty: tracking.difficulty,
+			frequency: tracking.frequency,
+		// Auto-record completion date when marking Finished (status=5)
+		...(newStatus === 5 && !tracking.lastCompletedAt
+				? { lastCompletedAt: new Date().toISOString() }
+				: {}),
+		}
 		setSaving(true)
 		try {
-			await onUpdate(tracking.id, {
-				status: Number(val),
-				difficulty: tracking.difficulty,
-				frequency: tracking.frequency,
-			})
+			await onUpdate(tracking.id, changes)
 		} finally {
 			setSaving(false)
 		}
@@ -372,9 +373,10 @@ const TrackingRow: React.FC<TrackingRowProps> = ({ tracking, onUpdate, onEdit, o
 		}
 	}
 
+	const statusLabelMap = useAppSelector((s: RootState) => s.statusLabels.labels)
 	const statusOptions: SelectOption[] = TRACKING_STATUSES.map((s) => ({
 		value: String(s.value),
-		label: s.label,
+		label: statusLabelMap[s.value] ?? s.label,
 		color: s.color,
 	}))
 
@@ -386,27 +388,8 @@ const TrackingRow: React.FC<TrackingRowProps> = ({ tracking, onUpdate, onEdit, o
 	return (
 		<tr className={`tracking-row ${saving ? 'tracking-row--saving' : ''}`}>
 			<td className='tracking-row__indent' />
-			<td className='tracking-row__diff'>
-				<TagBadge
-					label={getDifficultyLabel(tracking.difficulty)}
-					color={getDifficultyColor(tracking.difficulty)}
-					size='sm'
-				/>
-			</td>
-			<td className='tracking-row__character'>
-				<div className='tracking-row__char-inner'>
-					<span className='tracking-row__char-dot' style={{ background: classColor }} />
-					<span className='tracking-row__char-name' style={{ color: classColor }}>
-						{tracking.characterName}
-					</span>
-					{tracking.characterRace && (
-						<span className='tracking-row__char-race'>{tracking.characterRace}</span>
-					)}
-				</div>
-			</td>
 			<td className='tracking-row__status'>
 				<div className='tracking-row__select-wrap'>
-					<span className='tracking-row__status-dot' style={{ background: statusColor }} />
 					<SearchableSelect
 						options={statusOptions}
 						value={String(tracking.status)}
@@ -415,6 +398,13 @@ const TrackingRow: React.FC<TrackingRowProps> = ({ tracking, onUpdate, onEdit, o
 						className='tracking-row__select'
 					/>
 				</div>
+			</td>
+			<td className='tracking-row__diff'>
+				<TagBadge
+					label={getDifficultyLabel(tracking.difficulty)}
+					color={getDifficultyColor(tracking.difficulty)}
+					size='sm'
+				/>
 			</td>
 			<td className='tracking-row__freq'>
 				<SearchableSelect
@@ -425,11 +415,26 @@ const TrackingRow: React.FC<TrackingRowProps> = ({ tracking, onUpdate, onEdit, o
 					className='tracking-row__select'
 				/>
 			</td>
+			<td className='tracking-row__character'>
+				<div className='tracking-row__char-inner'>
+					<span className='tracking-row__char-dot' style={{ background: classColor }} />
+					<span className='tracking-row__char-name' style={{ color: classColor }}>
+						{tracking.characterName}
+					</span>
+				</div>
+			</td>
 			<td className='tracking-row__last'>
 				{tracking.lastCompletedAt ? (
 					new Date(tracking.lastCompletedAt).toLocaleDateString()
 				) : (
 					<span className='tracking-row__never'>—</span>
+				)}
+			</td>
+			<td className='tracking-row__comment'>
+				{tracking.comment && (
+					<span className='tracking-row__comment-text' title={tracking.comment}>
+						{tracking.comment}
+					</span>
 				)}
 			</td>
 			<td className='tracking-row__actions'>
@@ -468,17 +473,18 @@ const ContentGroup: React.FC<ContentGroupProps> = ({
 	const [expanded, setExpanded] = useState(true)
 
 	// summary stats
-	const done = trackings.filter((t) => t.status === 4).length
+	const done = trackings.filter((t) => t.status === 5).length
 	const total = trackings.length
+	const sorted = [...trackings].sort((a, b) => a.difficulty - b.difficulty)
 
 	return (
 		<>
 			<tr className='content-group-row' onClick={() => setExpanded((e) => !e)}>
-				<td colSpan={7}>
+				<td colSpan={8}>
 					<div className='content-group-row__inner'>
 						<span className='content-group-row__toggle'>{expanded ? '▼' : '▶'}</span>
 						<span className='content-group-row__name'>{contentName}</span>
-						<TagBadge label={expansion} size='sm' />
+						<TagBadge label={expansion} color={getExpansionColor(expansion)} size='sm' />
 						<span className='content-group-row__spacer' />
 						<span className='content-group-row__count'>
 							{done}/{total}
@@ -487,7 +493,7 @@ const ContentGroup: React.FC<ContentGroupProps> = ({
 				</td>
 			</tr>
 			{expanded &&
-				trackings.map((t) => (
+				sorted.map((t) => (
 					<TrackingRow
 						key={t.id}
 						tracking={t}
@@ -544,6 +550,17 @@ export const ProgressPage: React.FC = () => {
 		loadAll()
 	}, [loadAll])
 
+	// Re-fetch whenever a daily/weekly reset fires (refetchToken increments in Redux)
+	const refetchToken = useAppSelector(selectRefetchToken)
+	const mountedRef = useRef(false)
+	useEffect(() => {
+		if (!mountedRef.current) {
+			mountedRef.current = true
+			return
+		}
+		loadAll()
+	}, [refetchToken])
+
 	const handleUpdate = async (id: string, changes: Partial<UpdateTrackingRequest>) => {
 		const t = trackings.find((x) => x.id === id)
 		if (!t) return
@@ -596,9 +613,10 @@ export const ProgressPage: React.FC = () => {
 		color: m.color ?? undefined,
 	}))
 
+	const statusLabelMap = useAppSelector((s: RootState) => s.statusLabels.labels)
 	const statusOptions: SelectOption[] = TRACKING_STATUSES.map((s) => ({
 		value: String(s.value),
-		label: s.label,
+		label: statusLabelMap[s.value] ?? s.label,
 		color: s.color,
 	}))
 
@@ -646,21 +664,23 @@ export const ProgressPage: React.FC = () => {
 					<table className='progress-table'>
 						<colgroup>
 							<col style={{ width: '28px' }} />
+							<col style={{ width: '200px', maxWidth: '200px' }} />
 							<col style={{ width: '100px' }} />
-							<col style={{ width: '180px' }} />
-							<col />
 							<col style={{ width: '130px' }} />
+							<col style={{ width: '180px' }} />
 							<col style={{ width: '120px' }} />
+							<col />
 							<col style={{ width: '90px' }} />
 						</colgroup>
 						<thead>
 							<tr>
 								<th />
-								<th>Difficulty</th>
-								<th>Character</th>
 								<th>Status</th>
+								<th>Difficulty</th>
 								<th>Frequency</th>
+								<th>Character</th>
 								<th>Last completed</th>
+								<th>Comment</th>
 								<th />
 							</tr>
 						</thead>

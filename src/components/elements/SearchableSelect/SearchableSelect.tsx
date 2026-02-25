@@ -120,6 +120,12 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
 						placeholder='Search...'
 						value={search}
 						onChange={(e) => setSearch(e.target.value)}
+						onBlur={(e) => {
+							if (!containerRef.current?.contains(e.relatedTarget as Node)) {
+								setOpen(false)
+								setSearch('')
+							}
+						}}
 					/>
 					<ul className='searchable-select__list'>
 						{filtered.length === 0 ? (

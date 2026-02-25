@@ -35,7 +35,10 @@ export const Header: React.FC = () => {
 	return (
 		<header className='app-header'>
 			<div className='header-content'>
-				<span className='header-logo'>⚔️ WarcraftArchive</span>
+				<span className='header-logo'>
+					<img src='/favicon.ico' alt='' className='header-logo__icon' />
+					Warcraft Archive
+				</span>
 
 				<nav className='header-nav'>
 					<NavLink

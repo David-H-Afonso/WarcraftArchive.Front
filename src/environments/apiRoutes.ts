@@ -46,6 +46,10 @@ export const apiRoutes = {
 		importContent: '/admin/data/import/content',
 		importProgress: '/admin/data/import/progress',
 	},
+	reset: {
+		daily: '/admin/reset/daily',
+		weekly: '/admin/reset/weekly',
+	},
 }
 
 export type ApiRoutes = typeof apiRoutes

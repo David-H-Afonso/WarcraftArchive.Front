@@ -2,6 +2,12 @@ import React, { useState, useEffect, useRef } from 'react'
 import { authService, warbandService, userMotiveService, dataService } from '@/services'
 import { useAppDispatch, useAppSelector } from '@/store/hooks/hooks'
 import { patchCurrentUser, selectCurrentUser } from '@/store/features/auth'
+import {
+	setSimulatedReset,
+	selectSimDailyReset,
+	selectSimWeeklyReset,
+	selectRefetchToken,
+} from '@/store/features/simReset'
 import type { UserDto } from '@/models/api/Auth'
 import type { UpdateUserRequest } from '@/models/api/Auth'
 import type { Warband, CreateWarbandRequest } from '@/models/api/Warband'
@@ -9,6 +15,9 @@ import type { UserMotive, CreateUserMotiveRequest } from '@/models/api/UserMotiv
 import { Modal } from '@/components/elements/Modal/Modal'
 import { ConfirmDialog } from '@/components/elements/ConfirmDialog/ConfirmDialog'
 import { TagBadge } from '@/components/elements/TagBadge/TagBadge'
+import { TRACKING_STATUSES } from '@/utils/wowConstants'
+import { setStatusLabel, resetStatusLabel, resetAllStatusLabels } from '@/store/features/statusLabels'
+import type { RootState } from '@/store'
 import './AdminPage.scss'
 
 // ─── Users section ────────────────────────────────────────────────────────────
@@ -587,6 +596,71 @@ const MotivesSection: React.FC = () => {
 	)
 }
 
+// ─── Status Labels section ──────────────────────────────────────────────────
+const StatusLabelsSection: React.FC = () => {
+	const dispatch = useAppDispatch()
+	const labels = useAppSelector((s: RootState) => s.statusLabels.labels)
+	const [edits, setEdits] = useState<Record<number, string>>(() => ({ ...labels }))
+
+	// Keep local edits in sync when store changes (e.g. after reset)
+	useEffect(() => {
+		setEdits({ ...labels })
+	}, [labels])
+
+	const handleSave = (value: number) => {
+		const trimmed = (edits[value] ?? '').trim()
+		if (trimmed) dispatch(setStatusLabel({ value, label: trimmed }))
+	}
+
+	const handleReset = (value: number) => {
+		dispatch(resetStatusLabel(value))
+	}
+
+	const handleResetAll = () => {
+		dispatch(resetAllStatusLabels())
+	}
+
+	return (
+		<section className='admin-section'>
+			<div className='admin-section__header'>
+				<h2 className='admin-section__title'>Status Labels</h2>
+				<button className='btn btn-outline btn-sm' onClick={handleResetAll}>
+					Reset all
+				</button>
+			</div>
+			<p className='admin-empty' style={{ marginBottom: '0.75rem', fontSize: '0.85rem' }}>
+				Customise the display name for each tracking status (useful for translations).
+			</p>
+			<div className='admin-tags-list'>
+				{TRACKING_STATUSES.map((s) => (
+					<div key={s.value} className='admin-tag-row'>
+						<span
+							className='admin-status-dot'
+							style={{ background: s.color }}
+						/>
+						<input
+							type='text'
+							className='admin-status-label-input'
+							maxLength={40}
+							value={edits[s.value] ?? s.label}
+							onChange={(e) => setEdits((prev) => ({ ...prev, [s.value]: e.target.value }))}
+							onBlur={() => handleSave(s.value)}
+							onKeyDown={(e) => e.key === 'Enter' && handleSave(s.value)}
+						/>
+						<div className='admin-tag-row__actions'>
+							<button
+								className='btn btn-outline btn-xs'
+								onClick={() => handleReset(s.value)}>
+								Reset
+							</button>
+						</div>
+					</div>
+				))}
+			</div>
+		</section>
+	)
+}
+
 // ─── Import / Export section ──────────────────────────────────────────────────
 type ImportTarget = 'characters' | 'content' | 'progress'
 
@@ -630,7 +704,12 @@ const ImportExportSection: React.FC = () => {
 			const text = await file.text()
 			if (target === 'characters') {
 				const r = await dataService.importCharacters(text)
-				setResult(`Imported ${r.imported} character(s)`)
+				const parts = [`✅ ${r.imported} imported`]
+				if (r.duplicated) parts.push(`⚠️ ${r.duplicated} duplicate(s) skipped`)
+				if (r.errored) parts.push(`❌ ${r.errored} error(s)`)
+				const summary = parts.join(' · ')
+				const errorLines = r.errors?.length ? '\n' + r.errors.join('\n') : ''
+				setResult(summary + errorLines)
 			} else if (target === 'content') {
 				const r = await dataService.importContent(text)
 				setResult(`Imported ${r.imported} content item(s)`)
@@ -685,6 +764,65 @@ const ImportExportSection: React.FC = () => {
 	)
 }
 
+// ─── Reset section ────────────────────────────────────────────────────────────
+const SIMULATION_DELAY_MS = 10_000
+
+const ResetSection: React.FC = () => {
+	const dispatch = useAppDispatch()
+	const simDaily = useAppSelector(selectSimDailyReset)
+	const simWeekly = useAppSelector(selectSimWeeklyReset)
+	const refetchToken = useAppSelector(selectRefetchToken)
+	const [lastResult, setLastResult] = useState<string | null>(null)
+
+	// Show confirmation once a reset actually fires (refetchToken increments)
+	const prevTokenRef = useRef(refetchToken)
+	useEffect(() => {
+		if (refetchToken > prevTokenRef.current) {
+			setLastResult('Reset triggered — statuses updated')
+			prevTokenRef.current = refetchToken
+		}
+	}, [refetchToken])
+
+	const handleSimulate = (type: 'daily' | 'weekly') => {
+		const at = new Date(Date.now() + SIMULATION_DELAY_MS).toISOString()
+		dispatch(setSimulatedReset({ type, at }))
+		setLastResult(null)
+	}
+
+	const pendingDaily = simDaily !== null
+	const pendingWeekly = simWeekly !== null
+
+	return (
+		<section className='admin-section'>
+			<div className='admin-section__header'>
+				<h2 className='admin-section__title'>Force Reset</h2>
+			</div>
+			<div className='admin-reset'>
+				<p className='admin-reset__desc'>
+					Simulate a WoW server reset. The countdown in the header will jump to{' '}
+					<strong>10 seconds</strong>, then the reset fires and statuses update (Finished -&gt;
+					LastWeek, LastWeek -&gt; NotStarted). Afterwards the real timer resumes.
+				</p>
+				<div className='admin-reset__buttons'>
+					<button
+						className='btn btn-outline'
+						disabled={pendingDaily}
+						onClick={() => handleSimulate('daily')}>
+						{pendingDaily ? '⏳ Daily reset in ~10s…' : '↺ Force Daily Reset'}
+					</button>
+					<button
+						className='btn btn-outline'
+						disabled={pendingWeekly}
+						onClick={() => handleSimulate('weekly')}>
+						{pendingWeekly ? '⏳ Weekly reset in ~10s…' : '↺ Force Weekly Reset'}
+					</button>
+				</div>
+				{lastResult && <p className='admin-reset__result'>{lastResult}</p>}
+			</div>
+		</section>
+	)
+}
+
 // ─── Main page ────────────────────────────────────────────────────────────────
 export const AdminPage: React.FC = () => {
 	return (
@@ -696,7 +834,9 @@ export const AdminPage: React.FC = () => {
 				<UsersSection />
 				<WarbandsSection />
 				<MotivesSection />
+				<StatusLabelsSection />
 				<ImportExportSection />
+				<ResetSection />
 			</div>
 		</div>
 	)

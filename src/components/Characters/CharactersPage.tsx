@@ -10,7 +10,7 @@ import { Modal } from '@/components/elements/Modal/Modal'
 import { ConfirmDialog } from '@/components/elements/ConfirmDialog/ConfirmDialog'
 import { SearchableSelect } from '@/components/elements/SearchableSelect/SearchableSelect'
 import { TagBadge } from '@/components/elements/TagBadge/TagBadge'
-import { WOW_CLASSES, WOW_CLASS_COLORS, WOW_RACES, WOW_COVENANTS } from '@/utils/wowConstants'
+import { WOW_CLASSES, WOW_CLASS_COLORS, WOW_RACES, WOW_RACE_COLORS, WOW_COVENANTS } from '@/utils/wowConstants'
 import type { SelectOption } from '@/components/elements/SearchableSelect/SearchableSelect'
 import './CharactersPage.scss'
 
@@ -70,6 +70,7 @@ const CharacterForm: React.FC<CharacterFormProps> = ({
 	const raceOptions: SelectOption[] = WOW_RACES.map((r) => ({
 		value: r,
 		label: r,
+		color: WOW_RACE_COLORS[r],
 	}))
 
 	const covenantOptions: SelectOption[] = WOW_COVENANTS.map((c) => ({
@@ -201,6 +202,7 @@ interface CharacterCardProps {
 
 const CharacterCard: React.FC<CharacterCardProps> = ({ character, onEdit, onDelete }) => {
 	const classColor = WOW_CLASS_COLORS[character.class] ?? '#7c8cff'
+	const raceColor = WOW_RACE_COLORS[character.race ?? ''] ?? undefined
 
 	return (
 		<div className='char-card'>
@@ -212,7 +214,7 @@ const CharacterCard: React.FC<CharacterCardProps> = ({ character, onEdit, onDele
 				</div>
 				<div className='char-card__tags'>
 					{character.class && <TagBadge label={character.class} color={classColor} size='sm' />}
-					{character.race && <TagBadge label={character.race} size='sm' />}
+					{character.race && <TagBadge label={character.race} color={raceColor} size='sm' />}
 					{character.covenant && <TagBadge label={character.covenant} color='#a855f7' size='sm' />}
 					{character.warbandName && (
 						<TagBadge

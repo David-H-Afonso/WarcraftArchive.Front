@@ -7,7 +7,12 @@ import { ConfirmDialog } from '@/components/elements/ConfirmDialog/ConfirmDialog
 import { SearchableSelect } from '@/components/elements/SearchableSelect/SearchableSelect'
 import { MultiSelect } from '@/components/elements/MultiSelect/MultiSelect'
 import { TagBadge } from '@/components/elements/TagBadge/TagBadge'
-import { WOW_EXPANSIONS, DIFFICULTIES, parseDifficultyBitmask } from '@/utils/wowConstants'
+import {
+	WOW_EXPANSIONS,
+	DIFFICULTIES,
+	parseDifficultyBitmask,
+	getExpansionColor,
+} from '@/utils/wowConstants'
 import type { SelectOption } from '@/components/elements/SearchableSelect/SearchableSelect'
 import './ContentPage.scss'
 
@@ -131,7 +136,7 @@ const ContentForm: React.FC<ContentFormProps> = ({ open, content, motives, onSav
 								style={
 									diffBits.includes(d.value) ? { background: d.color, borderColor: d.color } : {}
 								}
-								onClick={() => toggleDiff(d.flag)}>
+								onClick={() => toggleDiff(d.value)}>
 								{d.label}
 							</button>
 						))}
@@ -181,7 +186,11 @@ const ContentRow: React.FC<ContentRowProps> = ({ content, onEdit, onDelete }) =>
 		<tr className='content-row'>
 			<td className='content-row__name'>{content.name}</td>
 			<td className='content-row__expansion'>
-				<TagBadge label={content.expansion} size='sm' />
+				<TagBadge
+					label={content.expansion}
+					color={getExpansionColor(content.expansion)}
+					size='sm'
+				/>
 			</td>
 			<td className='content-row__diffs'>
 				<div className='content-row__diffs-inner'>

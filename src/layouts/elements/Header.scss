@@ -1,5 +1,23 @@
 @use '@/assets/styles' as *;
 
+.header-logo {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	font-weight: 700;
+	font-size: 1rem;
+	color: var(--color-text);
+	white-space: nowrap;
+	text-decoration: none;
+
+	&__icon {
+		width: 20px;
+		height: 20px;
+		object-fit: contain;
+		flex-shrink: 0;
+	}
+}
+
 .header-nav {
 	display: flex;
 	align-items: stretch;
