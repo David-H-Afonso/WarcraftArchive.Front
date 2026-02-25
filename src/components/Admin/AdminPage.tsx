@@ -316,7 +316,7 @@ const WarbandsSection: React.FC = () => {
 		try {
 			setLoading(true)
 			const data = await warbandService.getAll()
-			setItems(data)
+			setItems(Array.isArray(data) ? data : [])
 		} catch (e) {
 			console.error(e)
 		} finally {
@@ -465,7 +465,7 @@ const MotivesSection: React.FC = () => {
 		try {
 			setLoading(true)
 			const data = await userMotiveService.getAll()
-			setItems(data)
+			setItems(Array.isArray(data) ? data : [])
 		} catch (e) {
 			console.error(e)
 		} finally {

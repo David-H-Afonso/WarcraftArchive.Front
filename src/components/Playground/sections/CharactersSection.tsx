@@ -38,7 +38,7 @@ export const CharactersSection: React.FC = () => {
 	const handleGetAll = () =>
 		run('getAll', async () => {
 			const list = await characterService.getAll()
-			setCharacters(list)
+			setCharacters(Array.isArray(list) ? list : [])
 			return list
 		})
 

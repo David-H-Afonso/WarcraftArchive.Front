@@ -245,8 +245,8 @@ export const ContentPage: React.FC = () => {
 				contentService.getAll(filterExpansion ? { expansion: filterExpansion } : undefined),
 				userMotiveService.getAll(),
 			])
-			setContents(data)
-			setMotives(motivesData)
+			setContents(Array.isArray(data) ? data : [])
+			setMotives(Array.isArray(motivesData) ? motivesData : [])
 		} catch (e) {
 			console.error(e)
 		} finally {

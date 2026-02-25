@@ -257,8 +257,8 @@ export const CharactersPage: React.FC = () => {
 		try {
 			setLoading(true)
 			const [chars, bands] = await Promise.all([characterService.getAll(), warbandService.getAll()])
-			setCharacters(chars)
-			setWarbands(bands)
+			setCharacters(Array.isArray(chars) ? chars : [])
+			setWarbands(Array.isArray(bands) ? bands : [])
 		} catch (e) {
 			console.error(e)
 		} finally {
