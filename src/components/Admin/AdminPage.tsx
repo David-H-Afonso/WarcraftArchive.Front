@@ -1,6 +1,9 @@
-import React, { useState, useEffect } from 'react'
-import { authService, warbandService, userMotiveService } from '@/services'
+import React, { useState, useEffect, useRef } from 'react'
+import { authService, warbandService, userMotiveService, dataService } from '@/services'
+import { useAppDispatch, useAppSelector } from '@/store/hooks/hooks'
+import { patchCurrentUser, selectCurrentUser } from '@/store/features/auth'
 import type { UserDto } from '@/models/api/Auth'
+import type { UpdateUserRequest } from '@/models/api/Auth'
 import type { Warband, CreateWarbandRequest } from '@/models/api/Warband'
 import type { UserMotive, CreateUserMotiveRequest } from '@/models/api/UserMotive'
 import { Modal } from '@/components/elements/Modal/Modal'
@@ -10,10 +13,20 @@ import './AdminPage.scss'
 
 // ─── Users section ────────────────────────────────────────────────────────────
 const UsersSection: React.FC = () => {
+	const dispatch = useAppDispatch()
+	const currentUser = useAppSelector(selectCurrentUser)
 	const [users, setUsers] = useState<UserDto[]>([])
 	const [loading, setLoading] = useState(true)
 	const [showCreate, setShowCreate] = useState(false)
+	const [editTarget, setEditTarget] = useState<UserDto | null>(null)
 	const [form, setForm] = useState({ email: '', userName: '', password: '', isAdmin: false })
+	const [editForm, setEditForm] = useState<UpdateUserRequest & { password: string }>({
+		email: '',
+		userName: '',
+		isAdmin: false,
+		isActive: true,
+		password: '',
+	})
 	const [saving, setSaving] = useState(false)
 	const [error, setError] = useState<string | null>(null)
 
@@ -49,6 +62,50 @@ const UsersSection: React.FC = () => {
 		}
 	}
 
+	const openEdit = (u: UserDto) => {
+		setEditTarget(u)
+		setEditForm({
+			email: u.email,
+			userName: u.userName,
+			isAdmin: u.isAdmin,
+			isActive: u.isActive,
+			password: '',
+		})
+	}
+
+	const handleEdit = async (e: React.FormEvent) => {
+		e.preventDefault()
+		if (!editTarget) return
+		setSaving(true)
+		setError(null)
+		try {
+			const req: UpdateUserRequest = {
+				email: editForm.email,
+				userName: editForm.userName,
+				isAdmin: editForm.isAdmin,
+				isActive: editForm.isActive,
+				password: editForm.password || undefined,
+			}
+			const updated = await authService.updateUser(editTarget.id, req)
+			if (currentUser?.userId === editTarget.id) {
+				dispatch(
+					patchCurrentUser({
+						userId: updated.id,
+						userName: updated.userName,
+						email: updated.email,
+						isAdmin: updated.isAdmin,
+					})
+				)
+			}
+			setEditTarget(null)
+			load()
+		} catch (e: unknown) {
+			setError((e as Error).message ?? 'Failed to update user')
+		} finally {
+			setSaving(false)
+		}
+	}
+
 	return (
 		<section className='admin-section'>
 			<div className='admin-section__header'>
@@ -69,6 +126,7 @@ const UsersSection: React.FC = () => {
 							<th>Role</th>
 							<th>Status</th>
 							<th>Created</th>
+							<th></th>
 						</tr>
 					</thead>
 					<tbody>
@@ -91,12 +149,18 @@ const UsersSection: React.FC = () => {
 									)}
 								</td>
 								<td className='admin-table__muted'>{new Date(u.createdAt).toLocaleDateString()}</td>
+								<td className='admin-table__actions'>
+									<button className='btn btn-outline btn-xs' onClick={() => openEdit(u)}>
+										Edit
+									</button>
+								</td>
 							</tr>
 						))}
 					</tbody>
 				</table>
 			)}
 
+			{/* Create modal */}
 			<Modal open={showCreate} title='New User' onClose={() => setShowCreate(false)}>
 				<form onSubmit={handleCreate} className='admin-form'>
 					<div className='form-group'>
@@ -146,6 +210,77 @@ const UsersSection: React.FC = () => {
 						</button>
 						<button type='submit' className='btn btn-primary btn-sm' disabled={saving}>
 							{saving ? 'Creating...' : 'Create'}
+						</button>
+					</div>
+				</form>
+			</Modal>
+
+			{/* Edit modal */}
+			<Modal
+				open={!!editTarget}
+				title={`Edit ${editTarget?.userName ?? 'User'}`}
+				onClose={() => setEditTarget(null)}
+				width='420px'>
+				<form onSubmit={handleEdit} className='admin-form'>
+					<div className='form-group'>
+						<label>Username</label>
+						<input
+							type='text'
+							required
+							value={editForm.userName}
+							onChange={(e) => setEditForm({ ...editForm, userName: e.target.value })}
+						/>
+					</div>
+					<div className='form-group'>
+						<label>Email</label>
+						<input
+							type='email'
+							required
+							value={editForm.email}
+							onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+						/>
+					</div>
+					<div className='form-group'>
+						<label>
+							New Password{' '}
+							<span style={{ color: 'var(--color-text-muted)', fontWeight: 400 }}>
+								(leave blank to keep)
+							</span>
+						</label>
+						<input
+							type='password'
+							value={editForm.password}
+							onChange={(e) => setEditForm({ ...editForm, password: e.target.value })}
+						/>
+					</div>
+					<div className='admin-form__checks-row'>
+						<label className='admin-form__check-label'>
+							<input
+								type='checkbox'
+								checked={editForm.isAdmin}
+								onChange={(e) => setEditForm({ ...editForm, isAdmin: e.target.checked })}
+							/>{' '}
+							Admin
+						</label>
+						<label className='admin-form__check-label'>
+							<input
+								type='checkbox'
+								checked={editForm.isActive}
+								onChange={(e) => setEditForm({ ...editForm, isActive: e.target.checked })}
+							/>{' '}
+							Active
+						</label>
+					</div>
+					{error && <p className='admin-form__error'>{error}</p>}
+					<div className='admin-form__actions'>
+						<button
+							type='button'
+							className='btn btn-secondary btn-sm'
+							onClick={() => setEditTarget(null)}>
+							Cancel
+						</button>
+						<button type='submit' className='btn btn-primary btn-sm' disabled={saving}>
+							{saving ? 'Saving...' : 'Save'}
 						</button>
 					</div>
 				</form>
@@ -452,6 +587,104 @@ const MotivesSection: React.FC = () => {
 	)
 }
 
+// ─── Import / Export section ──────────────────────────────────────────────────
+type ImportTarget = 'characters' | 'content' | 'progress'
+
+const ImportExportSection: React.FC = () => {
+	const [busy, setBusy] = useState<string | null>(null)
+	const [result, setResult] = useState<string | null>(null)
+	const fileInputRef = useRef<HTMLInputElement>(null)
+	const [pendingTarget, setPendingTarget] = useState<ImportTarget | null>(null)
+
+	const withBusy = async (key: string, fn: () => Promise<void>) => {
+		setBusy(key)
+		setResult(null)
+		try {
+			await fn()
+		} catch (e: unknown) {
+			setResult(`Error: ${(e as Error).message}`)
+		} finally {
+			setBusy(null)
+		}
+	}
+
+	const handleExport = (target: ImportTarget) =>
+		withBusy(`export-${target}`, async () => {
+			if (target === 'characters') await dataService.exportCharacters()
+			else if (target === 'content') await dataService.exportContent()
+			else await dataService.exportProgress()
+		})
+
+	const handleImportClick = (target: ImportTarget) => {
+		setPendingTarget(target)
+		fileInputRef.current?.click()
+	}
+
+	const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0]
+		e.target.value = ''
+		if (!file || !pendingTarget) return
+		const target = pendingTarget
+		setPendingTarget(null)
+		await withBusy(`import-${target}`, async () => {
+			const text = await file.text()
+			if (target === 'characters') {
+				const r = await dataService.importCharacters(text)
+				setResult(`Imported ${r.imported} character(s)`)
+			} else if (target === 'content') {
+				const r = await dataService.importContent(text)
+				setResult(`Imported ${r.imported} content item(s)`)
+			} else {
+				const r = await dataService.importProgress(text)
+				setResult(`Imported ${r.imported} tracking(s), ${r.skipped} skipped`)
+			}
+		})
+	}
+
+	const ITEMS: { key: ImportTarget; label: string }[] = [
+		{ key: 'characters', label: 'Characters' },
+		{ key: 'content', label: 'Content' },
+		{ key: 'progress', label: 'Progress' },
+	]
+
+	return (
+		<section className='admin-section'>
+			<div className='admin-section__header'>
+				<h2 className='admin-section__title'>Import / Export</h2>
+			</div>
+			<div className='admin-import-export'>
+				<input
+					ref={fileInputRef}
+					type='file'
+					accept='.csv,text/csv,text/plain'
+					style={{ display: 'none' }}
+					onChange={handleFileChange}
+				/>
+				{ITEMS.map(({ key, label }) => (
+					<div key={key} className='admin-import-export__row'>
+						<span className='admin-import-export__label'>{label}</span>
+						<div className='admin-import-export__actions'>
+							<button
+								className='btn btn-outline btn-sm'
+								disabled={!!busy}
+								onClick={() => handleExport(key)}>
+								{busy === `export-${key}` ? 'Exporting…' : '↓ Export CSV'}
+							</button>
+							<button
+								className='btn btn-outline btn-sm'
+								disabled={!!busy}
+								onClick={() => handleImportClick(key)}>
+								{busy === `import-${key}` ? 'Importing…' : '↑ Import CSV'}
+							</button>
+						</div>
+					</div>
+				))}
+				{result && <p className='admin-import-export__result'>{result}</p>}
+			</div>
+		</section>
+	)
+}
+
 // ─── Main page ────────────────────────────────────────────────────────────────
 export const AdminPage: React.FC = () => {
 	return (
@@ -463,6 +696,7 @@ export const AdminPage: React.FC = () => {
 				<UsersSection />
 				<WarbandsSection />
 				<MotivesSection />
+				<ImportExportSection />
 			</div>
 		</div>
 	)

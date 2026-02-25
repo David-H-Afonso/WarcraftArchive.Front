@@ -184,15 +184,19 @@ const ContentRow: React.FC<ContentRowProps> = ({ content, onEdit, onDelete }) =>
 				<TagBadge label={content.expansion} size='sm' />
 			</td>
 			<td className='content-row__diffs'>
-				{diffs.map((bit) => {
-					const d = DIFFICULTIES.find((x) => x.value === bit)!
-					return <TagBadge key={bit} label={d.label} color={d.color} size='sm' />
-				})}
+				<div className='content-row__diffs-inner'>
+					{diffs.map((bit) => {
+						const d = DIFFICULTIES.find((x) => x.value === bit)!
+						return <TagBadge key={bit} label={d.label} color={d.color} size='sm' />
+					})}
+				</div>
 			</td>
 			<td className='content-row__motives'>
-				{content.motives.map((m) => (
-					<TagBadge key={m.id} label={m.name} color={m.color ?? undefined} size='sm' />
-				))}
+				<div className='content-row__motives-inner'>
+					{content.motives.map((m) => (
+						<TagBadge key={m.id} label={m.name} color={m.color ?? undefined} size='sm' />
+					))}
+				</div>
 			</td>
 			<td className='content-row__comment'>
 				{content.comment && (

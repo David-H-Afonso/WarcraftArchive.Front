@@ -7,5 +7,6 @@ export {
 	setTokens,
 	forceLogout,
 	clearError,
+	patchCurrentUser,
 } from './authSlice'
 export * from './selector'

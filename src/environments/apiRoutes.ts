@@ -13,6 +13,7 @@ export const apiRoutes = {
 	admin: {
 		createUser: '/admin/users',
 		getUsers: '/admin/users',
+		updateUser: (id: string) => `/admin/users/${id}`,
 	},
 	characters: {
 		base: '/characters',
@@ -36,6 +37,14 @@ export const apiRoutes = {
 	},
 	dashboard: {
 		weekly: '/dashboard/weekly',
+	},
+	data: {
+		exportCharacters: '/admin/data/export/characters',
+		exportContent: '/admin/data/export/content',
+		exportProgress: '/admin/data/export/progress',
+		importCharacters: '/admin/data/import/characters',
+		importContent: '/admin/data/import/content',
+		importProgress: '/admin/data/import/progress',
 	},
 }
 

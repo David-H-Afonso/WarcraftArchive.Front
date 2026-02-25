@@ -44,6 +44,14 @@ export interface CreateUserRequest {
 	isAdmin: boolean
 }
 
+export interface UpdateUserRequest {
+	email: string
+	userName: string
+	isAdmin: boolean
+	isActive: boolean
+	password?: string
+}
+
 export interface UserDto {
 	id: string
 	email: string

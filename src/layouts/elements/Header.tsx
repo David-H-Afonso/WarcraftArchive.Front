@@ -1,9 +1,27 @@
 import React from 'react'
 import { NavLink } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '@/store/hooks/hooks'
+import { useWowResets } from '@/hooks/useWowResets'
 import './Header.scss'
 import { selectCurrentUser, selectIsAdmin } from '@/store/features/auth'
 import { logoutUser } from '@/store/features/auth'
+
+const ResetCountdown: React.FC = () => {
+	const { daily, weekly } = useWowResets()
+	return (
+		<div className='header-resets'>
+			<span className='header-resets__item'>
+				<span className='header-resets__label'>D</span>
+				<span className='header-resets__time'>{daily}</span>
+			</span>
+			<span className='header-resets__sep'>·</span>
+			<span className='header-resets__item'>
+				<span className='header-resets__label'>W</span>
+				<span className='header-resets__time'>{weekly}</span>
+			</span>
+		</div>
+	)
+}
 
 export const Header: React.FC = () => {
 	const dispatch = useAppDispatch()
@@ -52,6 +70,8 @@ export const Header: React.FC = () => {
 						</NavLink>
 					)}
 				</nav>
+
+				<ResetCountdown />
 
 				<div className='header-user'>
 					{user && (

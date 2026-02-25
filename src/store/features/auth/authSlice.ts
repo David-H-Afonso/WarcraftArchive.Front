@@ -86,6 +86,16 @@ const authSlice = createSlice({
 		clearError(state) {
 			state.error = null
 		},
+		patchCurrentUser(
+			state,
+			action: PayloadAction<{ userId: string; userName: string; email: string; isAdmin: boolean }>
+		) {
+			if (state.user && state.user.userId === action.payload.userId) {
+				state.user.userName = action.payload.userName
+				state.user.email = action.payload.email
+				state.user.isAdmin = action.payload.isAdmin
+			}
+		},
 	},
 	extraReducers: (builder) => {
 		// loginUser
@@ -132,5 +142,6 @@ const authSlice = createSlice({
 	},
 })
 
-export const { setCredentials, setTokens, forceLogout, clearError } = authSlice.actions
+export const { setCredentials, setTokens, forceLogout, clearError, patchCurrentUser } =
+	authSlice.actions
 export default authSlice.reducer

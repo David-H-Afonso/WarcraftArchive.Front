@@ -8,6 +8,7 @@ import type {
 	RefreshResponse,
 	MeResponse,
 	CreateUserRequest,
+	UpdateUserRequest,
 	UserDto,
 } from '../models/api/Auth'
 
@@ -54,6 +55,13 @@ export const authService = {
 	async createUser(req: CreateUserRequest): Promise<UserDto> {
 		return customFetch<UserDto>(apiRoutes.admin.createUser, {
 			method: 'POST',
+			body: req,
+		})
+	},
+
+	async updateUser(id: string, req: UpdateUserRequest): Promise<UserDto> {
+		return customFetch<UserDto>(apiRoutes.admin.updateUser(id), {
+			method: 'PUT',
 			body: req,
 		})
 	},

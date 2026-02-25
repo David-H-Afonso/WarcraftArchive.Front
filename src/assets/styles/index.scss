@@ -174,7 +174,7 @@ textarea {
 .header-content {
 	width: 100%;
 	display: grid;
-	grid-template-columns: auto 1fr auto;
+	grid-template-columns: auto 1fr auto auto;
 	align-items: stretch;
 	gap: 1.5rem;
 }

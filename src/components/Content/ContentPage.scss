@@ -78,14 +78,18 @@
 		white-space: nowrap;
 	}
 
-	&__expansion,
-	&__diffs,
-	&__motives {
+	&__expansion {
 		white-space: nowrap;
 	}
 
-	&__diffs,
-	&__motives {
+	&__diffs {
+		width: 290px;
+		min-width: 290px;
+		max-width: 290px;
+	}
+
+	&__diffs-inner,
+	&__motives-inner {
 		display: flex;
 		gap: 0.3rem;
 		flex-wrap: wrap;
