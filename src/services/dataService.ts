@@ -29,7 +29,9 @@ export const dataService = {
 		triggerDownload(text, 'progress.csv')
 	},
 
-	async importCharacters(csvText: string): Promise<{ imported: number; duplicated: number; errored: number; errors: string[] }> {
+	async importCharacters(
+		csvText: string
+	): Promise<{ imported: number; duplicated: number; errored: number; errors: string[] }> {
 		return customFetch(apiRoutes.data.importCharacters, {
 			method: 'POST',
 			headers: { 'Content-Type': 'text/plain' },

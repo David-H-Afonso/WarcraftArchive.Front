@@ -16,7 +16,11 @@ import { Modal } from '@/components/elements/Modal/Modal'
 import { ConfirmDialog } from '@/components/elements/ConfirmDialog/ConfirmDialog'
 import { TagBadge } from '@/components/elements/TagBadge/TagBadge'
 import { TRACKING_STATUSES } from '@/utils/wowConstants'
-import { setStatusLabel, resetStatusLabel, resetAllStatusLabels } from '@/store/features/statusLabels'
+import {
+	setStatusLabel,
+	resetStatusLabel,
+	resetAllStatusLabels,
+} from '@/store/features/statusLabels'
 import type { RootState } from '@/store'
 import './AdminPage.scss'
 
@@ -634,10 +638,7 @@ const StatusLabelsSection: React.FC = () => {
 			<div className='admin-tags-list'>
 				{TRACKING_STATUSES.map((s) => (
 					<div key={s.value} className='admin-tag-row'>
-						<span
-							className='admin-status-dot'
-							style={{ background: s.color }}
-						/>
+						<span className='admin-status-dot' style={{ background: s.color }} />
 						<input
 							type='text'
 							className='admin-status-label-input'
@@ -648,9 +649,7 @@ const StatusLabelsSection: React.FC = () => {
 							onKeyDown={(e) => e.key === 'Enter' && handleSave(s.value)}
 						/>
 						<div className='admin-tag-row__actions'>
-							<button
-								className='btn btn-outline btn-xs'
-								onClick={() => handleReset(s.value)}>
+							<button className='btn btn-outline btn-xs' onClick={() => handleReset(s.value)}>
 								Reset
 							</button>
 						</div>

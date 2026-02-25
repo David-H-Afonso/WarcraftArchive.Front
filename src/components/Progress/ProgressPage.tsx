@@ -123,7 +123,7 @@ const AddTrackingModal: React.FC<AddTrackingModalProps> = ({
 						options={contentOptions}
 						value={form.contentId || null}
 						onChange={(v) => {
-						const newContent = contents.find((c) => c.id === v) ?? null
+							const newContent = contents.find((c) => c.id === v) ?? null
 							const firstDiff = newContent
 								? (parseDifficultyBitmask(newContent.allowedDifficulties)[0] ?? 2)
 								: 2
@@ -307,9 +307,11 @@ const EditTrackingModal: React.FC<EditTrackingModalProps> = ({
 					<div className='form-group'>
 						<label>Last Completed</label>
 						<div className='tracking-form__readonly'>
-							{form.lastCompletedAt
-								? new Date(form.lastCompletedAt).toLocaleDateString()
-								: <span className='tracking-form__never'>Not recorded yet</span>}
+							{form.lastCompletedAt ? (
+								new Date(form.lastCompletedAt).toLocaleDateString()
+							) : (
+								<span className='tracking-form__never'>Not recorded yet</span>
+							)}
 						</div>
 					</div>
 					{error && <p className='tracking-form__error'>{error}</p>}
@@ -346,8 +348,8 @@ const TrackingRow: React.FC<TrackingRowProps> = ({ tracking, onUpdate, onEdit, o
 			status: newStatus,
 			difficulty: tracking.difficulty,
 			frequency: tracking.frequency,
-		// Auto-record completion date when marking Finished (status=5)
-		...(newStatus === 5 && !tracking.lastCompletedAt
+			// Auto-record completion date when marking Finished (status=5)
+			...(newStatus === 5 && !tracking.lastCompletedAt
 				? { lastCompletedAt: new Date().toISOString() }
 				: {}),
 		}

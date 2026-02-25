@@ -10,7 +10,13 @@ import { Modal } from '@/components/elements/Modal/Modal'
 import { ConfirmDialog } from '@/components/elements/ConfirmDialog/ConfirmDialog'
 import { SearchableSelect } from '@/components/elements/SearchableSelect/SearchableSelect'
 import { TagBadge } from '@/components/elements/TagBadge/TagBadge'
-import { WOW_CLASSES, WOW_CLASS_COLORS, WOW_RACES, WOW_RACE_COLORS, WOW_COVENANTS } from '@/utils/wowConstants'
+import {
+	WOW_CLASSES,
+	WOW_CLASS_COLORS,
+	WOW_RACES,
+	WOW_RACE_COLORS,
+	WOW_COVENANTS,
+} from '@/utils/wowConstants'
 import type { SelectOption } from '@/components/elements/SearchableSelect/SearchableSelect'
 import './CharactersPage.scss'
 
