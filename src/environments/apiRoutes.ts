@@ -14,6 +14,13 @@ export const apiRoutes = {
 		createUser: '/admin/users',
 		getUsers: '/admin/users',
 		updateUser: (id: string) => `/admin/users/${id}`,
+		orphansSummary: '/admin/orphans',
+		claimOrphanCharacter: (id: string) => `/admin/orphans/characters/${id}/claim`,
+		claimOrphanContent: (id: string) => `/admin/orphans/contents/${id}/claim`,
+		deleteOrphanCharacter: (id: string) => `/admin/orphans/characters/${id}`,
+		deleteOrphanContent: (id: string) => `/admin/orphans/contents/${id}`,
+		deleteOrphanTracking: (id: string) => `/admin/orphans/trackings/${id}`,
+		deleteAllOrphans: '/admin/orphans',
 	},
 	characters: {
 		base: '/characters',

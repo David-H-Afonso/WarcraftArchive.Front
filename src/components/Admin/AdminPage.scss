@@ -277,3 +277,76 @@
 		color: var(--color-success, #57c55a);
 	}
 }
+
+// ─── Orphans section ──────────────────────────────────────────────────────────
+.admin-orphans {
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+
+	&__badge {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-width: 1.4rem;
+		height: 1.4rem;
+		padding: 0 0.35rem;
+		margin-left: 0.5rem;
+		border-radius: 999px;
+		background: var(--color-danger, #e05c5c);
+		color: #fff;
+		font-size: 0.72rem;
+		font-weight: 700;
+		line-height: 1;
+		vertical-align: middle;
+	}
+
+	&__group {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
+	&__group-title {
+		font-size: 0.78rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		color: var(--color-text-muted);
+		padding: 10px 10px 0;
+	}
+
+	&__row-actions {
+		display: flex;
+		gap: 0.4rem;
+		justify-content: flex-end;
+	}
+
+	&__issue {
+		span {
+			display: inline-block;
+			padding: 0.1rem 0.4rem;
+			border-radius: 4px;
+			background: color-mix(in srgb, var(--color-danger, #e05c5c) 15%, transparent);
+			color: var(--color-danger, #e05c5c);
+			font-size: 0.72rem;
+			font-weight: 500;
+
+			& + span {
+				margin-left: 0.3rem;
+			}
+		}
+	}
+
+	&__result {
+		margin-top: 0.5rem;
+		font-size: 0.85rem;
+		color: var(--color-text-muted);
+		white-space: pre-line;
+	}
+}
+
+.admin-table__muted {
+	color: var(--color-text-muted);
+	font-size: 0.875rem;
+}

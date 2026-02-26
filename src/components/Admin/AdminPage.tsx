@@ -12,6 +12,7 @@ import type { UserDto } from '@/models/api/Auth'
 import type { UpdateUserRequest } from '@/models/api/Auth'
 import type { Warband, CreateWarbandRequest } from '@/models/api/Warband'
 import type { UserMotive, CreateUserMotiveRequest } from '@/models/api/UserMotive'
+import type { ImportResult, OrphansSummary } from '@/services/dataService'
 import { Modal } from '@/components/elements/Modal/Modal'
 import { ConfirmDialog } from '@/components/elements/ConfirmDialog/ConfirmDialog'
 import { TagBadge } from '@/components/elements/TagBadge/TagBadge'
@@ -660,6 +661,15 @@ const StatusLabelsSection: React.FC = () => {
 	)
 }
 
+// ─── Import result formatter ──────────────────────────────────────────────────
+function formatImportResult(r: ImportResult): string {
+	const parts = [`✅ ${r.imported} imported`]
+	if (r.duplicated) parts.push(`⚠️ ${r.duplicated} duplicate(s) skipped`)
+	if (r.errored) parts.push(`❌ ${r.errored} error(s)`)
+	const errorLines = r.errors?.length ? '\n' + r.errors.join('\n') : ''
+	return parts.join(' · ') + errorLines
+}
+
 // ─── Import / Export section ──────────────────────────────────────────────────
 type ImportTarget = 'characters' | 'content' | 'progress'
 
@@ -703,18 +713,13 @@ const ImportExportSection: React.FC = () => {
 			const text = await file.text()
 			if (target === 'characters') {
 				const r = await dataService.importCharacters(text)
-				const parts = [`✅ ${r.imported} imported`]
-				if (r.duplicated) parts.push(`⚠️ ${r.duplicated} duplicate(s) skipped`)
-				if (r.errored) parts.push(`❌ ${r.errored} error(s)`)
-				const summary = parts.join(' · ')
-				const errorLines = r.errors?.length ? '\n' + r.errors.join('\n') : ''
-				setResult(summary + errorLines)
+				setResult(formatImportResult(r))
 			} else if (target === 'content') {
 				const r = await dataService.importContent(text)
-				setResult(`Imported ${r.imported} content item(s)`)
+				setResult(formatImportResult(r))
 			} else {
 				const r = await dataService.importProgress(text)
-				setResult(`Imported ${r.imported} tracking(s), ${r.skipped} skipped`)
+				setResult(formatImportResult(r))
 			}
 		})
 	}
@@ -759,6 +764,291 @@ const ImportExportSection: React.FC = () => {
 				))}
 				{result && <p className='admin-import-export__result'>{result}</p>}
 			</div>
+		</section>
+	)
+}
+
+// ─── Orphans section ─────────────────────────────────────────────────────────
+const OrphansSection: React.FC = () => {
+	const [data, setData] = useState<OrphansSummary | null>(null)
+	const [users, setUsers] = useState<UserDto[]>([])
+	const [loading, setLoading] = useState(true)
+	const [busy, setBusy] = useState<string | null>(null)
+	const [claimTarget, setClaimTarget] = useState<{
+		type: 'characters' | 'contents'
+		id: string
+	} | null>(null)
+	const [claimUserId, setClaimUserId] = useState('')
+	const [confirmNuke, setConfirmNuke] = useState(false)
+	const [result, setResult] = useState<string | null>(null)
+
+	const load = async () => {
+		setLoading(true)
+		try {
+			const [orphans, userList] = await Promise.all([
+				dataService.getOrphans(),
+				authService.getUsers(),
+			])
+			setData(orphans)
+			setUsers(userList)
+		} catch (e: unknown) {
+			setResult(`Error loading orphans: ${(e as Error).message}`)
+		} finally {
+			setLoading(false)
+		}
+	}
+
+	useEffect(() => {
+		load()
+	}, [])
+
+	const withBusy = async (key: string, fn: () => Promise<void>) => {
+		setBusy(key)
+		setResult(null)
+		try {
+			await fn()
+		} catch (e: unknown) {
+			setResult(`Error: ${(e as Error).message}`)
+		} finally {
+			setBusy(null)
+		}
+	}
+
+	const handleDelete = (type: 'characters' | 'contents' | 'trackings', id: string) =>
+		withBusy(id, async () => {
+			if (type === 'characters') await dataService.deleteOrphanCharacter(id)
+			else if (type === 'contents') await dataService.deleteOrphanContent(id)
+			else await dataService.deleteOrphanTracking(id)
+			await load()
+		})
+
+	const openClaim = (type: 'characters' | 'contents', id: string) => {
+		setClaimTarget({ type, id })
+		setClaimUserId(users[0]?.id ?? '')
+	}
+
+	const handleClaim = async () => {
+		if (!claimTarget || !claimUserId) return
+		await withBusy(claimTarget.id, async () => {
+			if (claimTarget.type === 'characters')
+				await dataService.claimOrphanCharacter(claimTarget.id, claimUserId)
+			else await dataService.claimOrphanContent(claimTarget.id, claimUserId)
+			setClaimTarget(null)
+			await load()
+		})
+	}
+
+	const handleNukeAll = async () => {
+		setConfirmNuke(false)
+		await withBusy('nuke', async () => {
+			const r = await dataService.deleteAllOrphans()
+			setResult(
+				`Deleted: ${r.deletedCharacters} character(s), ${r.deletedContents} content(s), ${r.deletedTrackings} tracking(s)`
+			)
+			await load()
+		})
+	}
+
+	const total =
+		(data?.characters.length ?? 0) + (data?.contents.length ?? 0) + (data?.trackings.length ?? 0)
+
+	return (
+		<section className='admin-section'>
+			<div className='admin-section__header'>
+				<h2 className='admin-section__title'>
+					Orphaned Records
+					{!loading && total > 0 && <span className='admin-orphans__badge'>{total}</span>}
+				</h2>
+				{!loading && total > 0 && (
+					<button
+						className='btn btn-danger btn-sm'
+						disabled={!!busy}
+						onClick={() => setConfirmNuke(true)}>
+						Delete All
+					</button>
+				)}
+			</div>
+
+			{loading ? (
+				<p className='admin-empty'>Loading…</p>
+			) : total === 0 ? (
+				<p className='admin-empty'>No orphaned records found.</p>
+			) : (
+				<div className='admin-orphans'>
+					{/* Characters */}
+					{data!.characters.length > 0 && (
+						<div className='admin-orphans__group'>
+							<div className='admin-orphans__group-title'>
+								Characters ({data!.characters.length})
+							</div>
+							<table className='admin-table'>
+								<thead>
+									<tr>
+										<th>Name</th>
+										<th>Class</th>
+										<th>Race</th>
+										<th>Level</th>
+										<th className='admin-table__actions'></th>
+									</tr>
+								</thead>
+								<tbody>
+									{data!.characters.map((c) => (
+										<tr key={c.id}>
+											<td>{c.name}</td>
+											<td>{c.class}</td>
+											<td className='admin-table__muted'>{c.race ?? '—'}</td>
+											<td className='admin-table__muted'>{c.level ?? '—'}</td>
+											<td className='admin-table__actions'>
+												<div className='admin-orphans__row-actions'>
+													<button
+														className='btn btn-outline btn-xs'
+														disabled={!!busy}
+														onClick={() => openClaim('characters', c.id)}>
+														Claim
+													</button>
+													<button
+														className='btn btn-danger btn-xs'
+														disabled={!!busy}
+														onClick={() => handleDelete('characters', c.id)}>
+														Delete
+													</button>
+												</div>
+											</td>
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+					)}
+
+					{/* Contents */}
+					{data!.contents.length > 0 && (
+						<div className='admin-orphans__group'>
+							<div className='admin-orphans__group-title'>Content ({data!.contents.length})</div>
+							<table className='admin-table'>
+								<thead>
+									<tr>
+										<th>Name</th>
+										<th>Expansion</th>
+										<th className='admin-table__actions'></th>
+									</tr>
+								</thead>
+								<tbody>
+									{data!.contents.map((c) => (
+										<tr key={c.id}>
+											<td>{c.name}</td>
+											<td className='admin-table__muted'>{c.expansion}</td>
+											<td className='admin-table__actions'>
+												<div className='admin-orphans__row-actions'>
+													<button
+														className='btn btn-outline btn-xs'
+														disabled={!!busy}
+														onClick={() => openClaim('contents', c.id)}>
+														Claim
+													</button>
+													<button
+														className='btn btn-danger btn-xs'
+														disabled={!!busy}
+														onClick={() => handleDelete('contents', c.id)}>
+														Delete
+													</button>
+												</div>
+											</td>
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+					)}
+
+					{/* Trackings */}
+					{data!.trackings.length > 0 && (
+						<div className='admin-orphans__group'>
+							<div className='admin-orphans__group-title'>Trackings ({data!.trackings.length})</div>
+							<table className='admin-table'>
+								<thead>
+									<tr>
+										<th>Character</th>
+										<th>Content</th>
+										<th>Issue</th>
+										<th className='admin-table__actions'></th>
+									</tr>
+								</thead>
+								<tbody>
+									{data!.trackings.map((t) => (
+										<tr key={t.id}>
+											<td>{t.characterName}</td>
+											<td>{t.contentName}</td>
+											<td className='admin-table__muted admin-orphans__issue'>
+												{!t.characterOwned && <span>orphan character</span>}
+												{!t.contentOwned && <span>orphan content</span>}
+											</td>
+											<td className='admin-table__actions'>
+												<button
+													className='btn btn-danger btn-xs'
+													disabled={!!busy}
+													onClick={() => handleDelete('trackings', t.id)}>
+													Delete
+												</button>
+											</td>
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+					)}
+				</div>
+			)}
+
+			{result && <p className='admin-orphans__result'>{result}</p>}
+
+			{/* Claim Modal */}
+			{claimTarget && (
+				<Modal open={true} title='Claim Orphan' onClose={() => setClaimTarget(null)}>
+					<div className='admin-form'>
+						<p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>
+							Assign this orphaned record to a user.
+						</p>
+						<div className='form-group'>
+							<label className='form-label'>User</label>
+							<select
+								className='form-input'
+								value={claimUserId}
+								onChange={(e) => setClaimUserId(e.target.value)}>
+								{users.map((u) => (
+									<option key={u.id} value={u.id}>
+										{u.userName} ({u.email})
+									</option>
+								))}
+							</select>
+						</div>
+						<div className='admin-form__actions'>
+							<button className='btn btn-outline' onClick={() => setClaimTarget(null)}>
+								Cancel
+							</button>
+							<button
+								className='btn btn-primary'
+								disabled={!claimUserId || !!busy}
+								onClick={handleClaim}>
+								Assign
+							</button>
+						</div>
+					</div>
+				</Modal>
+			)}
+
+			{/* Nuke confirmation */}
+			{confirmNuke && (
+				<ConfirmDialog
+					open={true}
+					title='Delete All Orphans'
+					message={`This will permanently delete ${data!.characters.length} character(s), ${data!.contents.length} content(s) and ${data!.trackings.length} tracking(s). This cannot be undone.`}
+					confirmLabel='Delete All'
+					danger={true}
+					onConfirm={handleNukeAll}
+					onCancel={() => setConfirmNuke(false)}
+				/>
+			)}
 		</section>
 	)
 }
@@ -836,6 +1126,7 @@ export const AdminPage: React.FC = () => {
 				<MotivesSection />
 				<StatusLabelsSection />
 				<ImportExportSection />
+				{isAdmin && <OrphansSection />}
 				{isAdmin && <ResetSection />}
 			</div>
 		</div>
