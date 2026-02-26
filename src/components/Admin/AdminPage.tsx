@@ -183,6 +183,17 @@ const UsersSection: React.FC = () => {
 									<button className='btn btn-outline btn-xs' onClick={() => openEdit(u)}>
 										Edit
 									</button>
+									<button
+										className='btn btn-danger btn-xs'
+										disabled={u.id === currentUser?.userId}
+										title={
+											u.id === currentUser?.userId
+												? 'Cannot delete your own account'
+												: `Delete ${u.userName}`
+										}
+										onClick={() => setDeleteTarget(u)}>
+										Delete
+									</button>
 								</td>
 							</tr>
 						))}
