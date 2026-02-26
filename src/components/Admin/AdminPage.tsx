@@ -450,6 +450,7 @@ const WarbandsSection: React.FC = () => {
 						<input
 							type='text'
 							required
+							maxLength={18}
 							value={form.name}
 							onChange={(e) => setForm({ ...form, name: e.target.value })}
 						/>
