@@ -1,6 +1,11 @@
 import { customFetch } from '../utils'
 import { apiRoutes } from '../environments'
-import type { Warband, CreateWarbandRequest, UpdateWarbandRequest, ReorderWarbandItem } from '../models/api/Warband'
+import type {
+	Warband,
+	CreateWarbandRequest,
+	UpdateWarbandRequest,
+	ReorderWarbandItem,
+} from '../models/api/Warband'
 
 export const warbandService = {
 	async getAll(): Promise<Warband[]> {
