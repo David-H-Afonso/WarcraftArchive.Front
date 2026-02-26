@@ -80,12 +80,12 @@ export function useWowResets(): WowResets {
 		weekly: null,
 	})
 
-	// Reset the sim guard when a new simulation is set
+	// Reset the sim guard only when a *new* simulation is scheduled (not when clearing to null)
 	useEffect(() => {
-		firedRef.current.daily = false
+		if (simDaily !== null) firedRef.current.daily = false
 	}, [simDaily])
 	useEffect(() => {
-		firedRef.current.weekly = false
+		if (simWeekly !== null) firedRef.current.weekly = false
 	}, [simWeekly])
 
 	const [resets, setResets] = useState<WowResets>(() => {
@@ -103,6 +103,10 @@ export function useWowResets(): WowResets {
 			// ── Simulation: fire daily reset API when countdown hits 0 ──────────
 			if (simDaily && !firedRef.current.daily && now >= new Date(simDaily)) {
 				firedRef.current.daily = true
+				// Advance the real-reset cursor to the current reset period so that
+				// when simDaily clears to null and the interval restarts, the real
+				// reset block won't double-fire for the same period.
+				lastRealResetRef.current.daily = getPrevDailyReset(now)
 				resetService
 					.triggerDaily()
 					.then(() => dispatch(incrementRefetchToken()))
@@ -113,6 +117,8 @@ export function useWowResets(): WowResets {
 			// ── Simulation: fire weekly reset API when countdown hits 0 ─────────────────
 			if (simWeekly && !firedRef.current.weekly && now >= new Date(simWeekly)) {
 				firedRef.current.weekly = true
+				// Same guard for weekly: advance cursor so real-reset block won't re-fire.
+				lastRealResetRef.current.weekly = getPrevWeeklyReset(now)
 				resetService
 					.triggerWeekly()
 					.then(() => dispatch(incrementRefetchToken()))

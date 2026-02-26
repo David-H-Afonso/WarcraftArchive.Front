@@ -1127,8 +1127,15 @@ const ResetSection: React.FC = () => {
 			<div className='admin-reset'>
 				<p className='admin-reset__desc'>
 					Simulate a WoW server reset. The countdown in the header will jump to{' '}
-					<strong>10 seconds</strong>, then the reset fires and statuses update (Finished -&gt;
-					LastWeek, LastWeek -&gt; NotStarted). Afterwards the real timer resumes.
+					<strong>10 seconds</strong>, then the reset fires and statuses update. Afterwards the real
+					timer resumes.
+				</p>
+				<p className='admin-reset__desc'>
+					<strong>Daily</strong> (daily-frequency only): Finished &rarr; LastDay &middot; LastDay /
+					InProgress / Pending &rarr; NotStarted.
+					<br />
+					<strong>Weekly</strong> (weekly-frequency only, then also runs daily): Finished &rarr;
+					LastWeek &middot; LastWeek / InProgress / Pending &rarr; NotStarted.
 				</p>
 				<div className='admin-reset__buttons'>
 					<button

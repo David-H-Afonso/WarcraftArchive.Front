@@ -20,6 +20,8 @@ import {
 	getExpansionColor,
 	parseDifficultyBitmask,
 	WOW_CLASS_COLORS,
+	getStatusOptionsForFrequency,
+	isStatusValidForFrequency,
 } from '@/utils/wowConstants'
 import type { SelectOption } from '@/components/elements/SearchableSelect/SearchableSelect'
 import './ProgressPage.scss'
@@ -85,7 +87,7 @@ const AddTrackingModal: React.FC<AddTrackingModalProps> = ({
 	}))
 
 	const statusLabelMap = useAppSelector((s: RootState) => s.statusLabels.labels)
-	const statusOptions: SelectOption[] = TRACKING_STATUSES.map((s) => ({
+	const statusOptions: SelectOption[] = getStatusOptionsForFrequency(form.frequency).map((s) => ({
 		value: String(s.value),
 		label: statusLabelMap[s.value] ?? s.label,
 		color: s.color,
@@ -158,7 +160,11 @@ const AddTrackingModal: React.FC<AddTrackingModalProps> = ({
 					<SearchableSelect
 						options={frequencyOptions}
 						value={String(form.frequency)}
-						onChange={(v) => setForm({ ...form, frequency: Number(v) })}
+						onChange={(v) => {
+							const freq = Number(v)
+							const nextStatus = isStatusValidForFrequency(form.status ?? 0, freq) ? form.status : 0
+							setForm({ ...form, frequency: freq, status: nextStatus })
+						}}
 						clearable={false}
 					/>
 				</div>
@@ -234,7 +240,7 @@ const EditTrackingModal: React.FC<EditTrackingModalProps> = ({
 	})
 
 	const statusLabelMap = useAppSelector((s: RootState) => s.statusLabels.labels)
-	const statusOptions: SelectOption[] = TRACKING_STATUSES.map((s) => ({
+	const statusOptions: SelectOption[] = getStatusOptionsForFrequency(form.frequency).map((s) => ({
 		value: String(s.value),
 		label: statusLabelMap[s.value] ?? s.label,
 		color: s.color,
@@ -292,7 +298,11 @@ const EditTrackingModal: React.FC<EditTrackingModalProps> = ({
 						<SearchableSelect
 							options={frequencyOptions}
 							value={String(form.frequency)}
-							onChange={(v) => setForm({ ...form, frequency: Number(v) })}
+							onChange={(v) => {
+								const freq = Number(v)
+								const nextStatus = isStatusValidForFrequency(form.status, freq) ? form.status : 0
+								setForm({ ...form, frequency: freq, status: nextStatus })
+							}}
 							clearable={false}
 						/>
 					</div>
@@ -363,12 +373,14 @@ const TrackingRow: React.FC<TrackingRowProps> = ({ tracking, onUpdate, onEdit, o
 
 	const handleFrequencyChange = async (val: string | null) => {
 		if (val === null) return
+		const freq = Number(val)
+		const safeStatus = isStatusValidForFrequency(tracking.status, freq) ? tracking.status : 0
 		setSaving(true)
 		try {
 			await onUpdate(tracking.id, {
-				status: tracking.status,
+				status: safeStatus,
 				difficulty: tracking.difficulty,
-				frequency: Number(val),
+				frequency: freq,
 			})
 		} finally {
 			setSaving(false)
@@ -376,11 +388,13 @@ const TrackingRow: React.FC<TrackingRowProps> = ({ tracking, onUpdate, onEdit, o
 	}
 
 	const statusLabelMap = useAppSelector((s: RootState) => s.statusLabels.labels)
-	const statusOptions: SelectOption[] = TRACKING_STATUSES.map((s) => ({
-		value: String(s.value),
-		label: statusLabelMap[s.value] ?? s.label,
-		color: s.color,
-	}))
+	const statusOptions: SelectOption[] = getStatusOptionsForFrequency(tracking.frequency).map(
+		(s) => ({
+			value: String(s.value),
+			label: statusLabelMap[s.value] ?? s.label,
+			color: s.color,
+		})
+	)
 
 	const frequencyOptions: SelectOption[] = TRACKING_FREQUENCIES.map((f) => ({
 		value: String(f.value),

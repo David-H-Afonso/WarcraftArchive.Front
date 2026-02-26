@@ -195,6 +195,26 @@ export function getStatusColor(value: number): string {
 	return TRACKING_STATUSES.find((s) => s.value === value)?.color ?? '#8890b5'
 }
 
+/**
+ * Returns only the statuses valid for a given frequency.
+ * LastDay  (3) is only available for Daily  (1).
+ * LastWeek (4) is only available for Weekly (2).
+ * All other statuses are always available.
+ */
+export function getStatusOptionsForFrequency(frequency: number) {
+	return TRACKING_STATUSES.filter((s) => {
+		if (s.value === 3 /* LastDay */) return frequency === 1
+		if (s.value === 4 /* LastWeek */) return frequency === 2
+		return true
+	})
+}
+
+export function isStatusValidForFrequency(status: number, frequency: number): boolean {
+	if (status === 3 /* LastDay */) return frequency === 1
+	if (status === 4 /* LastWeek */) return frequency === 2
+	return true
+}
+
 // ─── Frequency ────────────────────────────────────────────────────────────────
 // Hourly=0, Daily=1, Weekly=2, Monthly=3
 export const TRACKING_FREQUENCIES = [
