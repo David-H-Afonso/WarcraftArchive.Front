@@ -1,5 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { characterService, warbandService } from '@/services'
+import { useAppDispatch, useAppSelector } from '@/store/hooks'
+import {
+	setFilterClass,
+	setFilterWarband,
+	setFilterRace,
+	setSortBy,
+} from '@/store/features/characterFilters'
 import type {
 	Character,
 	CreateCharacterRequest,
@@ -260,10 +267,11 @@ export const CharactersPage: React.FC = () => {
 	const [editTarget, setEditTarget] = useState<Character | null>(null)
 	const [showForm, setShowForm] = useState(false)
 	const [deleteTarget, setDeleteTarget] = useState<Character | null>(null)
-	const [filterClass, setFilterClass] = useState<string | null>(null)
-	const [filterWarband, setFilterWarband] = useState<string | null>(null)
-	const [filterRace, setFilterRace] = useState<string | null>(null)
-	const [sortBy, setSortBy] = useState<string | null>(null)
+
+	const dispatch = useAppDispatch()
+	const { filterClass, filterWarband, filterRace, sortBy } = useAppSelector(
+		(state) => state.characterFilters
+	)
 
 	const load = useCallback(async () => {
 		try {
@@ -361,7 +369,7 @@ export const CharactersPage: React.FC = () => {
 						<SearchableSelect
 							options={classFilterOptions}
 							value={filterClass}
-							onChange={setFilterClass}
+							onChange={(v) => dispatch(setFilterClass(v))}
 							placeholder='Filter by class...'
 						/>
 					</div>
@@ -369,7 +377,7 @@ export const CharactersPage: React.FC = () => {
 						<SearchableSelect
 							options={raceFilterOptions}
 							value={filterRace}
-							onChange={setFilterRace}
+							onChange={(v) => dispatch(setFilterRace(v))}
 							placeholder='Filter by race...'
 						/>
 					</div>
@@ -377,7 +385,7 @@ export const CharactersPage: React.FC = () => {
 						<SearchableSelect
 							options={warbandFilterOptions}
 							value={filterWarband}
-							onChange={setFilterWarband}
+							onChange={(v) => dispatch(setFilterWarband(v))}
 							placeholder='Filter by warband...'
 						/>
 					</div>
@@ -385,7 +393,7 @@ export const CharactersPage: React.FC = () => {
 						<SearchableSelect
 							options={sortOptions}
 							value={sortBy}
-							onChange={setSortBy}
+							onChange={(v) => dispatch(setSortBy(v))}
 							placeholder='Sort by...'
 						/>
 					</div>
