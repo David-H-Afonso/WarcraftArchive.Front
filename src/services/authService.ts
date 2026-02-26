@@ -66,6 +66,10 @@ export const authService = {
 		})
 	},
 
+	async deleteUser(id: string): Promise<void> {
+		await customFetch<void>(apiRoutes.admin.deleteUser(id), { method: 'DELETE' })
+	},
+
 	async getUsers(): Promise<UserDto[]> {
 		return customFetch<UserDto[]>(apiRoutes.admin.getUsers)
 	},

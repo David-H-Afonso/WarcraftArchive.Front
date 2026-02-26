@@ -14,6 +14,7 @@ export const apiRoutes = {
 		createUser: '/admin/users',
 		getUsers: '/admin/users',
 		updateUser: (id: string) => `/admin/users/${id}`,
+		deleteUser: (id: string) => `/admin/users/${id}`,
 		orphansSummary: '/admin/orphans',
 		claimOrphanCharacter: (id: string) => `/admin/orphans/characters/${id}/claim`,
 		claimOrphanContent: (id: string) => `/admin/orphans/contents/${id}/claim`,

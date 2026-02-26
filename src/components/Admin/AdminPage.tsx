@@ -43,6 +43,8 @@ const UsersSection: React.FC = () => {
 	})
 	const [saving, setSaving] = useState(false)
 	const [error, setError] = useState<string | null>(null)
+	const [deleteTarget, setDeleteTarget] = useState<UserDto | null>(null)
+	const [deleting, setDeleting] = useState(false)
 
 	const load = async () => {
 		try {
@@ -117,6 +119,20 @@ const UsersSection: React.FC = () => {
 			setError((e as Error).message ?? 'Failed to update user')
 		} finally {
 			setSaving(false)
+		}
+	}
+
+	const handleDelete = async () => {
+		if (!deleteTarget) return
+		setDeleting(true)
+		try {
+			await authService.deleteUser(deleteTarget.id)
+			setDeleteTarget(null)
+			load()
+		} catch (e: unknown) {
+			setError((e as Error).message ?? 'Failed to delete user')
+		} finally {
+			setDeleting(false)
 		}
 	}
 
@@ -299,6 +315,17 @@ const UsersSection: React.FC = () => {
 					</div>
 				</form>
 			</Modal>
+
+			{/* Delete confirm */}
+			<ConfirmDialog
+				open={!!deleteTarget}
+				title='Delete User'
+				message={`Delete "${deleteTarget?.userName}"? This will permanently remove all their characters, content and tracking data.`}
+				confirmLabel={deleting ? 'Deleting...' : 'Delete'}
+				danger={true}
+				onConfirm={handleDelete}
+				onCancel={() => setDeleteTarget(null)}
+			/>
 		</section>
 	)
 }
