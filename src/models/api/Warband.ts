@@ -4,6 +4,7 @@ export interface Warband {
 	id: string
 	name: string
 	color: string | null
+	sortOrder: number
 	ownerUserId: string
 	createdAt: string
 	updatedAt: string
@@ -17,4 +18,9 @@ export interface CreateWarbandRequest {
 export interface UpdateWarbandRequest {
 	name: string
 	color?: string | null
+}
+
+export interface ReorderWarbandItem {
+	id: string
+	sortOrder: number
 }

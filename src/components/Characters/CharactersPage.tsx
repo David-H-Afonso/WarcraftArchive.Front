@@ -261,6 +261,9 @@ export const CharactersPage: React.FC = () => {
 	const [showForm, setShowForm] = useState(false)
 	const [deleteTarget, setDeleteTarget] = useState<Character | null>(null)
 	const [filterClass, setFilterClass] = useState<string | null>(null)
+	const [filterWarband, setFilterWarband] = useState<string | null>(null)
+	const [filterRace, setFilterRace] = useState<string | null>(null)
+	const [sortBy, setSortBy] = useState<string | null>(null)
 
 	const load = useCallback(async () => {
 		try {
@@ -300,23 +303,87 @@ export const CharactersPage: React.FC = () => {
 		}
 	}
 
-	const classFilterOptions: SelectOption[] = [
-		...WOW_CLASSES.map((c) => ({ value: c, label: c, color: WOW_CLASS_COLORS[c] })),
+	const classFilterOptions: SelectOption[] = WOW_CLASSES.map((c) => ({
+		value: c,
+		label: c,
+		color: WOW_CLASS_COLORS[c],
+	}))
+
+	const raceFilterOptions: SelectOption[] = WOW_RACES.map((r) => ({
+		value: r,
+		label: r,
+		color: WOW_RACE_COLORS[r],
+	}))
+
+	const warbandFilterOptions: SelectOption[] = warbands.map((w) => ({
+		value: w.id,
+		label: w.name,
+		color: w.color ?? undefined,
+	}))
+
+	const sortOptions: SelectOption[] = [
+		{ value: 'warband', label: 'Warband' },
+		{ value: 'class', label: 'Class' },
+		{ value: 'race', label: 'Race' },
+		{ value: 'level', label: 'Level' },
 	]
 
-	const displayed = filterClass ? characters.filter((c) => c.class === filterClass) : characters
+	let displayed = characters
+	if (filterClass) displayed = displayed.filter((c) => c.class === filterClass)
+	if (filterWarband) displayed = displayed.filter((c) => c.warbandId === filterWarband)
+	if (filterRace) displayed = displayed.filter((c) => c.race === filterRace)
+	if (sortBy) {
+		displayed = [...displayed].sort((a, b) => {
+			switch (sortBy) {
+				case 'warband':
+					return (a.warbandName ?? '').localeCompare(b.warbandName ?? '')
+				case 'class':
+					return a.class.localeCompare(b.class)
+				case 'race':
+					return (a.race ?? '').localeCompare(b.race ?? '')
+				case 'level':
+					return (b.level ?? 0) - (a.level ?? 0)
+				default:
+					return 0
+			}
+		})
+	}
 
 	return (
 		<div className='characters-page'>
 			<div className='characters-page__header'>
 				<h1 className='characters-page__title'>Characters</h1>
 				<div className='characters-page__toolbar'>
-					<div style={{ width: '200px' }}>
+					<div style={{ width: '180px' }}>
 						<SearchableSelect
 							options={classFilterOptions}
 							value={filterClass}
 							onChange={setFilterClass}
 							placeholder='Filter by class...'
+						/>
+					</div>
+					<div style={{ width: '160px' }}>
+						<SearchableSelect
+							options={raceFilterOptions}
+							value={filterRace}
+							onChange={setFilterRace}
+							placeholder='Filter by race...'
+						/>
+					</div>
+					<div style={{ width: '170px' }}>
+						<SearchableSelect
+							options={warbandFilterOptions}
+							value={filterWarband}
+							onChange={setFilterWarband}
+							placeholder='Filter by warband...'
+						/>
+					</div>
+					<div style={{ width: '150px' }}>
+						<SearchableSelect
+							options={sortOptions}
+							value={sortBy}
+							onChange={setSortBy}
+							placeholder='Sort by...'
 						/>
 					</div>
 					<button className='btn btn-primary btn-sm' onClick={openCreate}>

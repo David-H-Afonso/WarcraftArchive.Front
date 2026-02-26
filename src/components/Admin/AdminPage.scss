@@ -105,6 +105,30 @@
 		background: var(--color-surface-hover);
 	}
 
+	&__order {
+		display: flex;
+		flex-direction: column;
+		gap: 0;
+		margin-right: 0.4rem;
+		opacity: 0;
+		transition: opacity 0.15s;
+
+		.btn-outline {
+			padding: 0 0.25rem;
+			line-height: 1.2;
+			font-size: 0.55rem;
+
+			&:disabled {
+				opacity: 0.2;
+				cursor: default;
+			}
+		}
+	}
+
+	&:hover &__order {
+		opacity: 1;
+	}
+
 	&__actions {
 		display: flex;
 		gap: 0.4rem;

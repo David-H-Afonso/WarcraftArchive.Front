@@ -38,6 +38,7 @@ export const apiRoutes = {
 	warbands: {
 		base: '/warbands',
 		byId: (id: string) => `/warbands/${id}`,
+		reorder: '/warbands/reorder',
 	},
 	motives: {
 		base: '/motives',

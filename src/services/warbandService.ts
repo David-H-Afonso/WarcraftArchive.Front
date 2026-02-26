@@ -1,6 +1,6 @@
 import { customFetch } from '../utils'
 import { apiRoutes } from '../environments'
-import type { Warband, CreateWarbandRequest, UpdateWarbandRequest } from '../models/api/Warband'
+import type { Warband, CreateWarbandRequest, UpdateWarbandRequest, ReorderWarbandItem } from '../models/api/Warband'
 
 export const warbandService = {
 	async getAll(): Promise<Warband[]> {
@@ -27,5 +27,12 @@ export const warbandService = {
 
 	async delete(id: string): Promise<void> {
 		return customFetch<void>(apiRoutes.warbands.byId(id), { method: 'DELETE' })
+	},
+
+	async reorder(items: ReorderWarbandItem[]): Promise<void> {
+		return customFetch<void>(apiRoutes.warbands.reorder, {
+			method: 'PUT',
+			body: items,
+		})
 	},
 }

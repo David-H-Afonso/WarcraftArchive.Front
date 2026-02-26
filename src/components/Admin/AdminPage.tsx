@@ -408,6 +408,21 @@ const WarbandsSection: React.FC = () => {
 		}
 	}
 
+	const moveWarband = async (index: number, direction: -1 | 1) => {
+		const newItems = [...items]
+		const swapIndex = index + direction
+		if (swapIndex < 0 || swapIndex >= newItems.length) return
+		;[newItems[index], newItems[swapIndex]] = [newItems[swapIndex], newItems[index]]
+		const reordered = newItems.map((w, i) => ({ ...w, sortOrder: i }))
+		setItems(reordered)
+		try {
+			await warbandService.reorder(reordered.map((w) => ({ id: w.id, sortOrder: w.sortOrder })))
+		} catch (e) {
+			console.error(e)
+			load()
+		}
+	}
+
 	return (
 		<section className='admin-section'>
 			<div className='admin-section__header'>
@@ -423,8 +438,24 @@ const WarbandsSection: React.FC = () => {
 				<p className='admin-empty'>No warbands yet.</p>
 			) : (
 				<div className='admin-tags-list'>
-					{items.map((w) => (
+					{items.map((w, idx) => (
 						<div key={w.id} className='admin-tag-row'>
+							<div className='admin-tag-row__order'>
+								<button
+									className='btn btn-outline btn-xs'
+									disabled={idx === 0}
+									onClick={() => moveWarband(idx, -1)}
+									title='Move up'>
+									&#9650;
+								</button>
+								<button
+									className='btn btn-outline btn-xs'
+									disabled={idx === items.length - 1}
+									onClick={() => moveWarband(idx, 1)}
+									title='Move down'>
+									&#9660;
+								</button>
+							</div>
 							<TagBadge label={w.name} color={w.color ?? undefined} />
 							<div className='admin-tag-row__actions'>
 								<button className='btn btn-outline btn-xs' onClick={() => openEdit(w)}>
