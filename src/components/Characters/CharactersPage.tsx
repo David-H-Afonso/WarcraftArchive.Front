@@ -335,8 +335,11 @@ export const CharactersPage: React.FC = () => {
 	if (sortBy) {
 		displayed = [...displayed].sort((a, b) => {
 			switch (sortBy) {
-				case 'warband':
-					return (a.warbandName ?? '').localeCompare(b.warbandName ?? '')
+				case 'warband': {
+					const aIdx = a.warbandId ? warbands.findIndex((w) => w.id === a.warbandId) : Infinity
+					const bIdx = b.warbandId ? warbands.findIndex((w) => w.id === b.warbandId) : Infinity
+					return (aIdx === -1 ? Infinity : aIdx) - (bIdx === -1 ? Infinity : bIdx)
+				}
 				case 'class':
 					return a.class.localeCompare(b.class)
 				case 'race':
